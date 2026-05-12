@@ -11,9 +11,9 @@ The platform is **multilingual (Arabic, French, English)** and supports **multip
 ```
 Sikbeauty/
 │
-├── frontend/     # React + TailwindCSS
+├── app/     # Next.js + TailwindCSS
 │
-└── backend/      # Express + Node.js + TypeScript + PostgreSQL
+└── server/      # Express + Node.js + TypeScript + PostgreSQL
 ```
 
 ---
@@ -47,9 +47,8 @@ Sikbeauty/
 ## ⚙️ Tech Stack
 
 ### Frontend
-- **React.js** – Component-based UI  
+- **Next.js** – Component-based UI  
 - **Tailwind CSS** – Utility-first styling  
-- **React Router** – Client-side routing  
 - **Context API** – Global state management  
 - **Axios / Fetch** – API communication
 
