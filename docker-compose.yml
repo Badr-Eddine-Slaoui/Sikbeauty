@@ -13,6 +13,19 @@ services:
       DATABASE_URL: "${DATABASE_URL}"
     depends_on:
       - db
+  server:
+    container_name: back-end
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
 
   db:
     image: postgres:17-alpine
@@ -38,6 +51,7 @@ services:
       - "${PGADMIN_PORT}:80"
     depends_on:
       - db
+
 
 volumes:
   pg_data:

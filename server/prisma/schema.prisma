@@ -1,0 +1,330 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int        @id @default(autoincrement())
+  fullName        String     @map("full_name")
+  email           String     @unique
+
+  phoneNumber      String    @map("phone_number")
+  phoneCountryCode String   @map("phone_country_code")
+
+  country         String
+  role            Role
+  
+  password        String
+  isEmailVerified Boolean    @default(false)            @map("is_email_verified")
+
+  // jobTitle        String?                @map("job_title")
+  // companyName     String?                @map("company_name")
+  
+  carts           Cart?
+  orders          Order[]
+  userAddress     UserAddress[]
+  refreshTokens   RefreshToken[]
+  likedProducts   LikedProduct[]
+  
+  createdAt           DateTime  @default(now())             @map("created_at")
+  updatedAt           DateTime  @updatedAt @default(now())  @map("updated_at")
+  @@map("users")
+}
+
+model RefreshToken {
+  id              String     @id @default(uuid())
+
+  userId          Int        @map("user_id")
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash       String     @map("token_hash")
+
+  expiresAt       DateTime   @map("expires_at")
+  revokedAt       DateTime?  @map("revoked_at")
+
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+  @@index([userId])
+  @@index([revokedAt])
+}
+
+enum Role {
+  admin
+  // Professional
+  Individual
+}
+
+model UserAddress {
+  id              Int        @id @default(autoincrement())
+  fullName        String     @map("full_name")
+  email           String
+  userId          Int       @map("user_id")
+  user            User      @relation(fields: [userId], references: [id])
+  phoneNumber     String    @map("phone_number")
+  phoneCountryCode String   @map("phone_country_code")
+  street          String
+  city            String
+  state           String
+  postalCode      String?   @map("postal_code")
+  country         String
+  createdAt       DateTime  @default(now())             @map("created_at")
+  updatedAt       DateTime  @updatedAt @default(now())  @map("updated_at")
+  @@map("user_addresses")
+}
+
+model Product {
+  id                  Int        @id @default(autoincrement()) 
+  title               String
+  description         String?
+  // minQuantity         Int       @map("min_quantity") //professional customers
+  // priceIndividual     Decimal     @map("price_idividual")
+  // priceProfessional   Decimal     @map("price_professional")
+  price               Int
+  discountType        DiscountType?      @map("discount_type")   // The minimum number of items a customer must buy to get a discount.    
+  discount            Int?    @map("discount")  // 
+  // stock               Int
+  thumbnailUrl        String    @map("thumbnail_url")
+  // images              Image[]   @relation("ProductImages")
+  images              String[]
+  status              Boolean   @default(true)
+  videoUrl            String    @map("video_url")
+
+  categoryId          Int       @map("category_id")
+  category            Category  @relation(fields: [categoryId], references: [id])
+
+  cartItems           CartItem[]
+  orderItem           OrderItem[]
+  likedBy             LikedProduct[]
+
+  createdAt           DateTime  @default(now())             @map("created_at")
+  updatedAt           DateTime  @updatedAt @default(now())  @map("updated_at")
+  @@map("products")
+}
+
+enum DiscountType {
+  PRICE
+  PERCENT
+}
+
+// model Image {
+//   id            Int       @id @default(autoincrement())
+//   url           String
+//   is_thumbnail  Boolean   @default(false)
+//   productId     Int
+//   product       Product   @relation("ProductImages", fields: [productId], references: [id])
+// }
+
+model Category {
+  id                  Int        @id @default(autoincrement()) 
+
+  name                String
+
+  slug                String    @unique
+
+  products            Product[]                    // one-to-many relation
+
+  isActive            Boolean   @default(true)    @map("is_active")
+
+  createdAt           DateTime  @default(now())             @map("created_at")
+  updatedAt           DateTime  @updatedAt @default(now())  @map("updated_at")
+
+  @@map("categogies")
+}
+
+model Cart {
+  id          Int        @id @default(autoincrement())
+
+  userId      Int         @map("user_id")   @unique  
+  user        User        @relation(fields: [userId], references: [id])
+
+  items       CartItem[]
+
+    
+  // exchangeRate  Decimal  @map("exchange_rate") @default(1)
+  // currency      Currency  @default(USD)  
+
+  createdAt           DateTime  @default(now())             @map("created_at")
+  updatedAt           DateTime  @updatedAt @default(now())  @map("updated_at")
+
+  @@map("carts")
+}
+
+model CartItem {
+  id          Int         @id @default(autoincrement())
+
+  productId   Int         @map("product_id")
+  product     Product     @relation(fields: [productId], references: [id])
+
+  // price       Float
+  quantity    Int         @default(1)
+  // discountType DiscountType? @map("Discount_type")
+  // discount    Int?
+  // unitPrice   Int       @map("unit_price")
+
+  cartId      Int         @map("cart_id")
+  cart        Cart        @relation(fields: [cartId], references: [id])
+
+  createdAt           DateTime  @default(now())             @map("created_at")
+  updatedAt           DateTime  @updatedAt @default(now())  @map("updated_at")
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model OrderAddress {
+  id              Int         @id @default(autoincrement())
+  fullName        String
+  email           String
+
+  orderId         Int       @map( "order_id" )
+  order           Order     @relation(fields: [orderId], references: [id])
+
+  phoneNumber     String    @map("phone_number")
+  phoneCountryCode String   @map("phone_country_code")
+
+  street          String
+  city            String
+  state           String
+  country         String
+
+  postalCode      String?   @map("postal_code")
+
+  createdAt       DateTime  @default(now())             @map("created_at")
+  updatedAt       DateTime  @updatedAt @default(now())  @map("updated_at")
+  @@map( "order_address" )
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+
+  userId          Int         @map("user_id")
+  user            User        @relation(fields: [userId], references: [id])
+
+  status          OrderStatus @default(PENDING)
+
+  order_items     OrderItem[]
+  totalPrice      Int
+
+  orderAddress    OrderAddress[]
+  payment         Payment[]
+  stripeSessionId String?   @map("stripe_session_id")
+
+  createdAt       DateTime  @default(now())             @map("created_at")
+  updatedAt       DateTime  @updatedAt @default(now())  @map("updated_at")
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  // CONFIRMED
+  DELIVERED
+  CANCELLED
+  PAID
+}
+
+model Payment {
+  id                      Int             @id @default(autoincrement())
+  provider                PaymentProvider @default(STRIPE)
+
+  orderId                 Int             @map("order_id")
+  order                   Order           @relation(fields: [orderId], references: [id])
+
+
+  amount                  Int
+  currency                Currency        @default(EUR)
+
+  status                  PaymentStatus   @default(PENDING)
+
+  stripeSessionId         String          @unique @map("stripe_session_id") //created when create session id used for UI
+  stripePaymentIntentId   String?         @map("stripe_payment_intent_id") // created when send successfully payment webhook 
+  stripeChargeId          String?         @map("stripe_charge_id")   // created when refund money
+
+  createdAt               DateTime  @default(now())             @map("created_at")
+  updatedAt               DateTime  @updatedAt @default(now())  @map("updated_at")
+
+  @@map("payment")
+}
+
+enum PaymentProvider {
+  COD 
+  STRIPE
+}
+
+enum Currency {
+  USD
+  MAD
+  EUR
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+model OrderItem {
+  id              Int         @id @default(autoincrement())
+
+  orderId         Int         @map("order_id")
+  order           Order       @relation(fields: [orderId], references: [id])
+
+  productId       Int         @map("product_id")
+  product         Product     @relation(fields: [productId], references: [id]) 
+
+  price           Int
+  quantity        Int         @default(1)
+  discount        Int         @default(0)
+  discountType    DiscountType? @map( "discount_type" )
+  unitPrice       Int       @map("unit_price")
+
+  createdAt   DateTime    @default(now())             @map("created_at")
+  updatedAt   DateTime    @updatedAt @default(now())  @map("updated_at")
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+model Blog {
+  id              Int         @id @default(autoincrement())
+  
+  title           String
+  slug            String      @unique
+  content         String      @db.Text
+  excerpt         String?     @db.Text
+  thumbnailUrl    String      @map("thumbnail_url")
+  
+  isPublished     Boolean     @default(false)   @map("is_published")
+  
+  createdAt       DateTime    @default(now())   @map("created_at")
+  updatedAt       DateTime    @updatedAt @default(now())  @map("updated_at")
+  
+  @@map("blogs")
+}
+
+model LikedProduct {
+  id              Int         @id @default(autoincrement())
+  
+  userId          Int         @map("user_id")
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId       Int         @map("product_id")
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime    @default(now())   @map("created_at")
+  
+  @@unique([userId, productId])
+  @@map("liked_products")
+}

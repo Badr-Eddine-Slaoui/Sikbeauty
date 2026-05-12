@@ -1,0 +1,11 @@
+import './auth.docs';
+import './admin.categories.docs';
+import './admin.products.docs';
+import './category.products.docs';
+import './public.docs';
+import  './cart.cartItem.docs';
+import  './order.docs';
+import './products.docs'
+import  './user.address.docs';
+import  './checkout.resolve.cart.conflict.docs'
+import  './payment.docs'

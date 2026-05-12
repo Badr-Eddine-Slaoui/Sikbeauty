@@ -1,0 +1,17 @@
+FROM node:lts-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache openssl
+
+COPY package*.json yarn.lock ./
+
+RUN npm install
+
+COPY . .
+
+RUN npx prisma generate
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
