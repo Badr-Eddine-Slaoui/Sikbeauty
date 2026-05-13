@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 export const metadata = {
   title: "Checkout - Sikbeauty",
   description: "Checkout securely.",
+  robots: { index: false, follow: false },
 };
 
 export default function Page() {

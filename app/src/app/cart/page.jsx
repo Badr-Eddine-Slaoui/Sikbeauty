@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 export const metadata = {
   title: "Your Cart - Sikbeauty",
   description: "View your shopping cart.",
+  robots: { index: false, follow: false },
 };
 
 export default function Page() {

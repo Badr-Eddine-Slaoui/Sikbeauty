@@ -14,8 +14,97 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sikbeauty | The Best Beauty Products",
-  description: "Shop for the best beauty products at Sikbeauty. Quality cosmetics, professional tools, and much more.",
+    metadataBase: new URL("https://sikbeauty.com"),
+
+    title: {
+        default: "Sikbeauty",
+        template: "%s | Sikbeauty",
+    },
+
+    description:
+        "Discover premium skincare and beauty products at Sikbeauty.",
+
+    keywords: [
+        "beauty",
+        "skincare",
+        "cosmetics",
+        "makeup",
+        "Sikbeauty",
+        "Morocco beauty store",
+    ],
+
+    authors: [
+        {
+            name: "Sikbeauty",
+        },
+    ],
+
+    creator: "Sikbeauty",
+
+    publisher: "Sikbeauty",
+
+    applicationName: "Sikbeauty",
+
+    category: "Beauty",
+
+    robots: {
+        index: true,
+        follow: true,
+
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
+    },
+
+    alternates: {
+        canonical: "https://sikbeauty.com",
+    },
+
+    openGraph: {
+        title: "Sikbeauty",
+        description:
+            "Discover premium skincare and beauty products.",
+
+        url: "https://sikbeauty.com",
+
+        siteName: "Sikbeauty",
+
+        images: [
+            {
+                url: "/og-image.jpg",
+                width: 1200,
+                height: 630,
+                alt: "Sikbeauty",
+            },
+        ],
+
+        locale: "fr_FR",
+
+        type: "website",
+    },
+
+    twitter: {
+        card: "summary_large_image",
+
+        title: "Sikbeauty",
+
+        description:
+            "Discover premium skincare and beauty products.",
+
+        images: ["/og-image.jpg"],
+    },
+
+    icons: {
+        icon: "/favicon.ico",
+        shortcut: "/favicon.ico",
+        apple: "/apple-touch-icon.png",
+    },
+
+    manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
