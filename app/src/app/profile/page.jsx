@@ -1,0 +1,13 @@
+import UserProfile from "@/pages/user/UserProfile";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
+export const metadata = {
+  title: "Your Profile - Sikbeauty",
+  description: "Manage your profile.",
+};
+
+export default function Page() {
+  return (
+    <ProtectedRoute requiredRoles={["Individual", "Professional"]}><UserProfile /></ProtectedRoute>
+  );
+}
