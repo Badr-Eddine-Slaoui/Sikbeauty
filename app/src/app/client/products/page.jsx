@@ -1,10 +1,9 @@
 import ClientDashboard from "@/pages/client/ClientDashboard";
-
-const API_URL = process.env.INTERNAL_API_URL || "http://back-end:3000/api/v1";
+import { internalFetch } from "@/utils/internalFetch";
 
 async function getCategories() {
   try {
-    const res = await fetch(`${API_URL}/categories`, { next: { revalidate: 3600 } });
+    const res = await internalFetch('/categories', { next: { revalidate: 3600 } });
     if (res.ok) {
       const data = await res.json();
       return Array.isArray(data) ? data : (data?.data || []);
@@ -19,7 +18,7 @@ async function getCategoryProducts(categories) {
   const productsMap = {};
   const promises = categories.map(async (category) => {
     try {
-      const res = await fetch(`${API_URL}/categories/${category.id}/products?page=1&limit=100`, { next: { revalidate: 3600 } });
+    const res = await internalFetch(`/categories/${category.id}/products?page=1&limit=100`, { next: { revalidate: 3600 } });
       if (res.ok) {
         const data = await res.json();
         productsMap[category.id] = data?.data || [];

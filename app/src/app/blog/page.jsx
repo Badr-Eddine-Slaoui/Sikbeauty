@@ -1,10 +1,9 @@
 import BlogListPage from "@/pages/blog/BlogListPage";
-
-const API_URL = process.env.INTERNAL_API_URL || "http://back-end:3000/api/v1";
+import { internalFetch } from "@/utils/internalFetch";
 
 async function getBlogs(page = 1) {
   try {
-    const res = await fetch(`${API_URL}/blogs?page=${page}&limit=9`, { next: { revalidate: 3600 } });
+    const res = await internalFetch(`/blogs?page=${page}&limit=9`, { next: { revalidate: 3600 } });
     if (res.ok) {
       return await res.json();
     }

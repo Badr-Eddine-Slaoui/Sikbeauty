@@ -1,9 +1,10 @@
 import BlogDetailsPage from "@/pages/blog/BlogDetailsPage";
+import { internalFetch } from "@/utils/internalFetch";
 
 async function getBlog(slug) {
   try {
-    const res = await fetch(`http://back-end:3000/api/v1/blogs/${slug}`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+    const res = await internalFetch(`/blogs/${encodeURIComponent(slug)}`, {
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return null;
     const data = await res.json();

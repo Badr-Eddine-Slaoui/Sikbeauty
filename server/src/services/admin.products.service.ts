@@ -22,6 +22,7 @@ export const createNewProduct = async ( body : Product, video : string[],  image
 };
 
 export const saveFiles = async (files: Express.Multer.File[], folder : string) => {
+    await fs.mkdir(folder, { recursive: true });
     const save = files.map( async (file ) => {
         const nameFile = `${Math.floor(Math.random() * 1e6).toString().padStart(6, '0')}-${crypto.randomUUID()}-${Date.now()}${(file.originalname).replace(/\s+/g, '-')}`;
         const filepath = path.join(folder, nameFile) as string;
@@ -32,6 +33,7 @@ export const saveFiles = async (files: Express.Multer.File[], folder : string) =
 };
 
 export const saveFileToStorage = async ( file: Express.Multer.File, folder : string ) => {
+    await fs.mkdir(folder, { recursive: true });
     const nameFile = `${Math.floor(Math.random() * 1e6).toString().padStart(6, '0')}-${crypto.randomUUID()}-${Date.now()}${(file.originalname).replace(/\s+/g, '-')}`;
     const filepath = path.join(folder, nameFile) as string;
     await fs.writeFile(filepath, file.buffer); 

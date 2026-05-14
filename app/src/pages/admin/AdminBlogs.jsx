@@ -112,18 +112,21 @@ export default function AdminBlogs() {
   const handleCreateBlog = async (e) => {
     e.preventDefault();
     setValidationErrors({});
-    
+
+    // Always read content directly from the DOM before validation
+    const currentContent = editorRef.current?.innerHTML?.trim() || '';
+
     const errors = {};
     if (!formData.title.trim()) {
       errors.title = 'Le titre est requis';
     }
-    if (!formData.content.trim() || formData.content === '<br>') {
+    if (!currentContent || currentContent === '<br>') {
       errors.content = 'Le contenu est requis';
     }
     if (!thumbnailFile) {
-      errors.thumbnail = 'L\'image miniature est requise';
+      errors.thumbnail = "L'image miniature est requise";
     }
-    
+
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       toast.error('Veuillez corriger les erreurs de validation');
@@ -136,7 +139,7 @@ export default function AdminBlogs() {
 
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title.trim());
-      formDataToSend.append('content', formData.content);
+      formDataToSend.append('content', currentContent);
       if (formData.excerpt.trim()) {
         formDataToSend.append('excerpt', formData.excerpt.trim());
       }
@@ -162,28 +165,31 @@ export default function AdminBlogs() {
   const handleUpdateBlog = async (e) => {
     e.preventDefault();
     setValidationErrors({});
-    
+
+    // Always read content directly from the DOM before validation
+    const currentContent = editorRef.current?.innerHTML?.trim() || '';
+
     const errors = {};
     if (!formData.title.trim()) {
       errors.title = 'Le titre est requis';
     }
-    if (!formData.content.trim() || formData.content === '<br>') {
+    if (!currentContent || currentContent === '<br>') {
       errors.content = 'Le contenu est requis';
     }
-    
+
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       toast.error('Veuillez corriger les erreurs de validation');
       return;
     }
-    
+
     try {
       setSubmitting(true);
       setError(null);
 
       const payload = {};
       if (formData.title.trim()) payload.title = formData.title.trim();
-      if (formData.content) payload.content = formData.content;
+      payload.content = currentContent;
       if (formData.excerpt.trim()) payload.excerpt = formData.excerpt.trim();
       payload.isPublished = formData.isPublished;
 
@@ -472,7 +478,7 @@ export default function AdminBlogs() {
                 <p className="mt-1 text-xs text-red-600">{validationErrors.content}</p>
               )}
               <p className="mt-2 text-xs text-gray-500">
-                <strong>Conseils de formatage :</strong> Sélectionnez le texte et cliquez sur <strong>G</strong> pour gras ou <strong>I</strong> pour italique. Cliquez sur les boutons de liste pour créer des listes à puces ou numérotées. Cliquez sur titre pour les titres de section.
+                <strong>Conseils de formatage :</strong> Sélectionnez le texte et cliquez sur <strong>B</strong> pour gras ou <strong>I</strong> pour italique. Cliquez sur les boutons de liste pour créer des listes à puces ou numérotées. Cliquez sur titre pour les titres de section.
               </p>
             </div>
 

@@ -1,8 +1,10 @@
 "use client";
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Link } from '@/utils/react-router-dom';
 
 const NotFound = () => {
+  const handleBack = useCallback(() => window.history.back(), []);
+
   return (
     <div className="h-screen py-4 bg-linear-to-br from-[#fef7f5] via-white to-white relative overflow-hidden flex items-center justify-center px-4">
       {/* Decorative Background Elements */}
@@ -77,7 +79,7 @@ const NotFound = () => {
               </Link>
               
               <button
-                onClick={() => window.history.back()}
+                onClick={handleBack}
                 className="inline-flex items-center justify-center px-8 py-3 bg-white text-brandRed border-2 border-brandRed rounded-lg hover:bg-brandRed/10 transition-colors duration-300 font-semibold"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >

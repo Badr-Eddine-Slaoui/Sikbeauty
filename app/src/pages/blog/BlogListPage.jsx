@@ -112,12 +112,14 @@ export default function BlogListPage({ initialBlogsData = null }) {
     }
   }, [fetchBlogs, initialBlogsData]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       fetchBlogs(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, [fetchBlogs, pagination.totalPages]);
+
+  const handleRetry = useCallback(() => fetchBlogs(), [fetchBlogs]);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-[#fef7f5] via-white to-white">
@@ -160,7 +162,7 @@ export default function BlogListPage({ initialBlogsData = null }) {
               {error}
             </p>
             <button
-              onClick={() => fetchBlogs()}
+              onClick={handleRetry}
               className="px-6 py-3 bg-brandRed text-white font-semibold rounded-full hover:bg-brandBrown transition-colors duration-300"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
@@ -189,6 +191,7 @@ export default function BlogListPage({ initialBlogsData = null }) {
                 <button
                   onClick={() => handlePageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage === 1}
+                  aria-label="Page précédente"
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
@@ -201,6 +204,7 @@ export default function BlogListPage({ initialBlogsData = null }) {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
+                      aria-label={`Page ${page}`}
                       className={`w-10 h-10 rounded-full font-medium transition-colors ${
                         page === pagination.currentPage
                           ? 'bg-brandRed text-white'
@@ -216,6 +220,7 @@ export default function BlogListPage({ initialBlogsData = null }) {
                 <button
                   onClick={() => handlePageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage === pagination.totalPages}
+                  aria-label="Page suivante"
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >

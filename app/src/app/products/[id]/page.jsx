@@ -1,11 +1,10 @@
 import ProductDetails from "@/pages/products/ProductDetails";
 import StructuredData from "@/components/SEO/StructuredData";
-
-const API_URL = process.env.INTERNAL_API_URL || "http://back-end:3000/api/v1";
+import { internalFetch } from "@/utils/internalFetch";
 
 export async function generateStaticParams() {
   try {
-    const res = await fetch(`${API_URL}/products`);
+    const res = await internalFetch('/products');
     if (res.ok) {
       const data = await res.json();
       const products = data?.data || data || [];
@@ -21,7 +20,7 @@ export async function generateStaticParams() {
 
 async function getProduct(id) {
   try {
-    const res = await fetch(`${API_URL}/products/${id}`, { next: { revalidate: 3600 } });
+    const res = await internalFetch(`/products/${encodeURIComponent(id)}`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const data = await res.json();
       return data?.data || data;
