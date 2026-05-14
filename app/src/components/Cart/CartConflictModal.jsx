@@ -1,6 +1,8 @@
 "use client";
 import { X, AlertTriangle, Package } from 'lucide-react';
-const baseUrl = process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3001';
+import Image from 'next/image';
+
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Helper to format price - handles both string and number values
 const formatPrice = (value) => {
@@ -10,6 +12,13 @@ const formatPrice = (value) => {
   // If it's a number, format it
   if (typeof value === 'number' && Number.isFinite(value)) return value.toFixed(2);
   return '0.00';
+};
+
+const buildImageUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith("http") || path.startsWith("//")) return path;
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${baseUrl.replace(/\/$/, '')}/${cleanPath}`;
 };
 
 export default function CartConflictModal({ 
@@ -68,38 +77,45 @@ export default function CartConflictModal({
                 Articles indisponibles :
               </h3>
               <div className="space-y-2">
-                {conflicts.map((conflict, idx) => (
-                  <div 
-                    key={`conflict-${conflict.itemId || idx}`}
-                    className="flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-lg"
-                  >
-                    {conflict.product?.thumbnailUrl ? (
-                      <img 
-                        src={`${baseUrl}/${conflict.product.thumbnailUrl}`} 
-                        alt={conflict.product?.title || 'Produit'} 
-                        className="w-12 h-12 object-cover rounded-lg opacity-50"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <Package size={20} className="text-red-400" />
+                {conflicts.map((conflict, idx) => {
+                  const imageUrl = buildImageUrl(conflict.product?.thumbnailUrl);
+                  return (
+                    <div 
+                      key={`conflict-${conflict.itemId || idx}`}
+                      className="flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-lg"
+                    >
+                      <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-lg opacity-50">
+                        {imageUrl ? (
+                          <Image 
+                            src={imageUrl} 
+                            alt={conflict.product?.title || 'Produit'} 
+                            fill
+                            className="object-cover"
+                            sizes="48px"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-red-100 flex items-center justify-center">
+                            <Package size={20} className="text-red-400" />
+                          </div>
+                        )}
                       </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="font-montserrat text-sm font-medium text-red-800 line-through">
-                        {conflict.product?.title || 'Produit indisponible'}
-                      </p>
-                      <p className="font-montserrat text-xs text-red-600 mt-0.5">
-                        {conflict.message || 'Ce produit n\'est plus disponible'}
-                      </p>
-                      {conflict.oldQuantity > 0 && (
-                        <p className="font-montserrat text-xs text-red-500 mt-0.5">
-                          Quantité : {conflict.oldQuantity}
+                      <div className="min-w-0 flex-1">
+                        <p className="font-montserrat text-sm font-medium text-red-800 line-through">
+                          {conflict.product?.title || 'Produit indisponible'}
                         </p>
-                      )}
+                        <p className="font-montserrat text-xs text-red-600 mt-0.5">
+                          {conflict.message || 'Ce produit n\'est plus disponible'}
+                        </p>
+                        {conflict.oldQuantity > 0 && (
+                          <p className="font-montserrat text-xs text-red-500 mt-0.5">
+                            Quantité : {conflict.oldQuantity}
+                          </p>
+                        )}
+                      </div>
+                      <AlertTriangle size={16} className="text-red-500 shrink-0" />
                     </div>
-                    <AlertTriangle size={16} className="text-red-500 shrink-0" />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -112,23 +128,27 @@ export default function CartConflictModal({
               </h3>
               <div className="space-y-2">
                 {newCartItems.map((item, idx) => {
-                  const imageUrl = item.product?.thumbnailUrl || item.product?.thumbnail;
+                  const imageUrl = buildImageUrl(item.product?.thumbnailUrl || item.product?.thumbnail);
                   return (
                     <div 
                       key={`item-${item.id || idx}`}
                       className="flex items-center gap-3 p-3 bg-green-50 border border-green-100 rounded-lg"
                     >
-                      {imageUrl ? (
-                        <img 
-                          src={`${baseUrl}/${imageUrl}`} 
-                          alt={item.product?.title || 'Produit'} 
-                          className="w-12 h-12 object-cover rounded-lg"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Package size={20} className="text-green-500" />
-                        </div>
-                      )}
+                      <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-lg">
+                        {imageUrl ? (
+                          <Image 
+                            src={imageUrl} 
+                            alt={item.product?.title || 'Produit'} 
+                            fill
+                            className="object-cover"
+                            sizes="48px"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-green-100 flex items-center justify-center">
+                            <Package size={20} className="text-green-500" />
+                          </div>
+                        )}
+                      </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-montserrat text-sm font-medium text-gray-800">
                           {item.product?.title || 'Produit'}

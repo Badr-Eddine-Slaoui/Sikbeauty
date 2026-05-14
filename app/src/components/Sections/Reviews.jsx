@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 // Comment component for individual reviews
 function Comment({ fullName, purchase, comment, avatar }) {
@@ -7,11 +8,15 @@ function Comment({ fullName, purchase, comment, avatar }) {
     <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 max-w-md mx-auto">
       {/* Avatar */}
       <div className="flex items-center mb-4">
-        <img 
-          src={avatar || "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&q=80"} 
-          alt={fullName}
-          className="w-12 h-12 rounded-full object-cover mr-4"
-        />
+        <div className="relative w-12 h-12 mr-4">
+          <Image 
+            src={avatar || "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&q=80"} 
+            alt={fullName}
+            fill
+            className="rounded-full object-cover"
+            sizes="48px"
+          />
+        </div>
         <div>
           <h3 
             className="font-semibold text-gray-800"

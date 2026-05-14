@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Swiper, SwiperSlide } from "swiper/react";
+import Image from 'next/image';
 import "swiper/css";
 
 // Models component for individual routine cards
@@ -13,11 +14,15 @@ function Models({ src, alt }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <img 
-        src={src} 
-        alt={alt}
-        className="w-full h-auto object-cover"
-      />
+      <div className="relative w-full aspect-[3/4]">
+        <Image 
+          src={src} 
+          alt={alt}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 100vw, 20vw"
+        />
+      </div>
     </div>
   );
 }
@@ -31,11 +36,11 @@ import routine5 from "../../assets/Images/routine5.png";
 export default function Routine() {
   // Import routine images
   const routineImages = [
-    { src: routine1?.src || routine1, alt: "Routine 1" },
-    { src: routine2?.src || routine2, alt: "Routine 2" },
-    { src: routine3?.src || routine3, alt: "Routine 3" },
-    { src: routine4?.src || routine4, alt: "Routine 4" },
-    { src: routine5?.src || routine5, alt: "Routine 5" }
+    { src: routine1, alt: "Routine 1" },
+    { src: routine2, alt: "Routine 2" },
+    { src: routine3, alt: "Routine 3" },
+    { src: routine4, alt: "Routine 4" },
+    { src: routine5, alt: "Routine 5" }
   ];
 
   return (
@@ -61,7 +66,7 @@ export default function Routine() {
           >
             {routineImages.map((routine, index) => (
               <SwiperSlide key={index}>
-                <div className="w-full aspect-[3/4]">
+                <div className="w-full">
                   <Models 
                     src={routine.src}
                     alt={routine.alt}

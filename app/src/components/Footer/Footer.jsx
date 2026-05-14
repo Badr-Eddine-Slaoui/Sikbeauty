@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from '@/utils/react-router-dom';
 import Logo from '../../assets/Logo/SI-K-Beauty-logo.png';
+import Image from 'next/image';
 
 export default function Footer() {
   const location = useLocation();
@@ -51,10 +52,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8">
           {/* Logo & Description */}
           <div className="lg:col-span-1">
-            <img
-              src={Logo?.src || Logo}
+            <Image
+              src={Logo}
               alt="SI K-Beauty Logo"
-              className="w-16 h-16 object-contain mb-4"
+              width={64}
+              height={64}
+              style={{ height: 'auto' }}
+              className="object-contain mb-4"
             />
             <p 
               className="text-gray-300 leading-relaxed"

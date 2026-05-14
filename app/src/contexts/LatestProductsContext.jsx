@@ -10,12 +10,13 @@ export const useLatestProducts = () => {
   return ctx;
 };
 
-export const LatestProductsProvider = ({ children, limit = 4, fetchLimit = 20 }) => {
-  const [products, setProducts] = useState([]);
+export const LatestProductsProvider = ({ children, limit = 4, fetchLimit = 20, initialProducts = [] }) => {
+  const [products, setProducts] = useState(initialProducts);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchLatestProducts = useCallback(async () => {
+    // Only fetch if we don't have initial products or if we want to refetch
     setLoading(true);
     setError(null);
     try {
@@ -43,11 +44,15 @@ export const LatestProductsProvider = ({ children, limit = 4, fetchLimit = 20 })
     } finally {
       setLoading(false);
     }
-  }, [fetchLimit, limit]);
+  }, [limit]);
 
   useEffect(() => {
-    fetchLatestProducts();
-  }, [fetchLatestProducts]);
+    // Only fetch if we don't have a valid array of products
+    const hasInitialProducts = Array.isArray(initialProducts) && initialProducts.length > 0;
+    if (!hasInitialProducts) {
+      fetchLatestProducts();
+    }
+  }, [fetchLatestProducts, initialProducts]);
 
   const value = useMemo(
     () => ({

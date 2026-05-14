@@ -5,7 +5,7 @@ export const metadata = {
   description: "Shop for the best beauty products at Sikbeauty. Quality cosmetics, professional tools, and much more.",
 };
 
-export default function Page() {
+export default async function Page() {
   return (
     <Index />
   );

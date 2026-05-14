@@ -5,16 +5,17 @@ import { api } from '../../config/api';
 import API_ENDPOINTS from '../../config/api';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import ClientNavbar from '../../components/Client/ClientNavbar';
+import Image from 'next/image';
 
 const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=400&fit=crop&q=80';
 
-export default function BlogDetailsPage() {
+export default function BlogDetailsPage({ initialBlog }) {
   const { slug } = useParams();
-  const [blog, setBlog] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [blog, setBlog] = useState(initialBlog);
+  const [loading, setLoading] = useState(!initialBlog);
   const [error, setError] = useState(null);
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   const buildImageUrl = (path) => {
     if (!path) return PLACEHOLDER_IMAGE;
@@ -24,6 +25,7 @@ export default function BlogDetailsPage() {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
@@ -32,6 +34,7 @@ export default function BlogDetailsPage() {
   };
 
   const estimateReadTime = (content) => {
+    if (!content) return 0;
     const text = content.replace(/<[^>]*>/g, '');
     const words = text.split(/\s+/).length;
     const minutes = Math.ceil(words / 200);
@@ -40,6 +43,7 @@ export default function BlogDetailsPage() {
 
   useEffect(() => {
     const fetchBlog = async () => {
+      if (initialBlog) return;
       try {
         setLoading(true);
         const response = await api.get(API_ENDPOINTS.BLOGS.GET_BY_SLUG(slug));
@@ -52,15 +56,16 @@ export default function BlogDetailsPage() {
       }
     };
 
-    if (slug) {
+    if (slug && !initialBlog) {
       fetchBlog();
     }
-  }, [slug]);
+  }, [slug, initialBlog]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-b from-[#fef7f5] via-white to-white">
-        <div className="max-w-4xl mx-auto px-4 py-16">
+        <ClientNavbar />
+        <div className="max-w-4xl mx-auto px-4 py-16 pt-24">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-3/4 mb-4" />
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-8" />
@@ -144,14 +149,14 @@ export default function BlogDetailsPage() {
           </div>
         </header>
 
-        <div className="w-full h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden mb-10 shadow-lg">
-          <img
+        <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden mb-10 shadow-lg">
+          <Image
             src={buildImageUrl(blog.thumbnailUrl)}
             alt={blog.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.src = PLACEHOLDER_IMAGE;
-            }}
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 1024px) 100vw, 896px"
           />
         </div>
 
@@ -170,7 +175,7 @@ export default function BlogDetailsPage() {
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
 
-        <style>{`
+        <style jsx global>{`
           .blog-content {
             font-size: 1.125rem;
             line-height: 1.8;

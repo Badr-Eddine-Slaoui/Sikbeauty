@@ -8,6 +8,8 @@ import ClientNavbar from '../../components/Client/ClientNavbar';
 
 const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop&q=80';
 
+import Image from 'next/image';
+
 function BlogCard({ blog, apiBaseUrl }) {
   const buildImageUrl = (path) => {
     if (!path) return PLACEHOLDER_IMAGE;
@@ -29,14 +31,13 @@ function BlogCard({ blog, apiBaseUrl }) {
       to={`/blog/${blog.slug}`}
       className="bg-white overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group"
     >
-      <div className="w-full h-48 sm:h-56 overflow-hidden">
-        <img
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+      <div className="w-full h-48 sm:h-56 relative overflow-hidden">
+        <Image
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
           src={buildImageUrl(blog.thumbnailUrl)}
           alt={blog.title}
-          onError={(e) => {
-            e.target.src = PLACEHOLDER_IMAGE;
-          }}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </div>
 
@@ -74,17 +75,17 @@ function BlogCard({ blog, apiBaseUrl }) {
   );
 }
 
-export default function BlogListPage() {
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function BlogListPage({ initialBlogsData = null }) {
+  const [blogs, setBlogs] = useState(initialBlogsData?.data || []);
+  const [loading, setLoading] = useState(!initialBlogsData);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalItems: 0,
+    currentPage: initialBlogsData?.pageInfo?.currentPage || 1,
+    totalPages: initialBlogsData?.pageInfo?.totalPages || 1,
+    totalItems: initialBlogsData?.pageInfo?.totalItems || 0,
   });
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   const fetchBlogs = useCallback(async (page = 1) => {
     try {
@@ -106,8 +107,10 @@ export default function BlogListPage() {
   }, []);
 
   useEffect(() => {
-    fetchBlogs();
-  }, [fetchBlogs]);
+    if (!initialBlogsData) {
+      fetchBlogs();
+    }
+  }, [fetchBlogs, initialBlogsData]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {

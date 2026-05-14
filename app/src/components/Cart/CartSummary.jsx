@@ -8,7 +8,7 @@ import API_ENDPOINTS from '../../config/api';
 import toast from 'react-hot-toast';
 import CartConflictModal from './CartConflictModal';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export default function CartSummary() {
   const navigate = useNavigate();

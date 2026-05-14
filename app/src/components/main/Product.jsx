@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import Image from "next/image";
 
 function Product({ src }) {
   const [isHover, setIsHover] = useState(false);
@@ -8,15 +8,17 @@ function Product({ src }) {
   return (
     <div className="w-full">
       <div 
-        className="relative overflow-hidden group"
+        className="relative overflow-hidden group h-80"
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       >
         {/* Product Image */}
-        <img 
+        <Image 
           src={src || "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=500&fit=crop"} 
           alt="Produit" 
-          className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110" 
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110" 
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         
         {/* Hover Overlay */}

@@ -1,5 +1,5 @@
-"use client";
 import React from 'react';
+import Image from 'next/image';
 
 // Valeurs component for individual value cards with hover text overlay
 function Valeurs({ src, title, description }) {
@@ -7,10 +7,12 @@ function Valeurs({ src, title, description }) {
     <div className="group relative overflow-hidden bg-white shadow-lg transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl h-80 sm:h-96 md:h-[28rem]">
       {/* Image Container */}
       <div className="relative h-full overflow-hidden">
-        <img 
+        <Image 
           src={src || "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop&q=80"} 
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          sizes="(max-width: 768px) 100vw, 33vw"
         />
         
         {/* Hover Text Overlay */}

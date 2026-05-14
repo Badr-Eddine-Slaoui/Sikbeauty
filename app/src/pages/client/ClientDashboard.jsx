@@ -6,12 +6,12 @@ import ClientNavbar from "../../components/Client/ClientNavbar";
 import Footer from "../../components/Footer/Footer";
 import ScrollToTop from "../../components/ScrollTop";
 
-export default function ClientDashboard() {
+export default function ClientDashboard({ initialCategories = [], initialCategoryProducts = {} }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [priceFilter, setPriceFilter] = useState("all");
     const [sortBy, setSortBy] = useState("default");
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState(initialCategories);
     const location = useLocation();
     const mainScrollRef = useRef(null);
 
@@ -170,6 +170,8 @@ export default function ClientDashboard() {
                                 sortBy={sortBy}
                                 selectedCategory={selectedCategory}
                                 onCategoriesLoaded={setCategories}
+                                initialCategories={initialCategories}
+                                initialCategoryProducts={initialCategoryProducts}
                             />
                             <Outlet />
                         </div>

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "@/utils/react-router-dom";
 import { useCart } from "../../contexts/CartContext";
+import Image from "next/image";
 
 function ProductCard({ product }) {
   const [isHover, setIsHover] = useState(false);
@@ -41,11 +42,13 @@ function ProductCard({ product }) {
         style={{ cursor: 'pointer' }}
       >
         {/* Product Image */}
-        <div className="relative overflow-hidden">
-          <img 
+        <div className="relative overflow-hidden h-80">
+          <Image 
             src={product.thumbnailUrl || "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=500&fit=crop"} 
             alt={product.title}
-            className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110" 
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110" 
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
           
           {/* Discount Badge */}
@@ -79,51 +82,35 @@ function ProductCard({ product }) {
         
         {/* Product Info */}
         <div className="p-4 bg-white">
-          {/* Title */}
           <h3 
             className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {product.title}
           </h3>
-          
-          {/* Description */}
           <p 
             className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-10"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
             {product.description || "Produit K-Beauty premium pour votre routine de soins"}
           </p>
-          
-          {/* Price Section */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               {hasDiscount ? (
                 <>
-                  <span 
-                    className="text-lg font-bold text-[#B5483A]"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
-                  >
+                  <span className="text-lg font-bold text-[#B5483A]" style={{ fontFamily: "'Playfair Display', serif" }}>
                     ${discountedPrice.toFixed(2)}
                   </span>
-                  <span 
-                    className="text-sm text-gray-400 line-through"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
-                  >
+                  <span className="text-sm text-gray-400 line-through" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                     ${originalPrice.toFixed(2)}
                   </span>
                 </>
               ) : (
-                <span 
-                  className="text-lg font-bold text-[#B5483A]"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
+                <span className="text-lg font-bold text-[#B5483A]" style={{ fontFamily: "'Playfair Display', serif" }}>
                   ${originalPrice.toFixed(2)}
                 </span>
               )}
             </div>
-            
-            {/* Add to Cart Button */}
             <button 
               className="px-4 py-2 bg-brandRed text-white hover:bg-brandBrown transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={isAddingToCart || !isAvailable}
@@ -150,4 +137,3 @@ function ProductCard({ product }) {
 }
 
 export default ProductCard;
-

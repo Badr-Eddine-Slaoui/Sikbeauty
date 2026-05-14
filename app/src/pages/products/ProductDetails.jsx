@@ -9,16 +9,16 @@ import { useCart } from "../../contexts/CartContext";
 import PageLoader from "../../components/ui/PageLoader";
 import { useAuth } from "../../contexts/AuthContext";
 import Navbar from "../../components/Header/NavBar";
+import Image from "next/image";
 
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=500&fit=crop";
 
-export default function ProductDetails() {
-
+export default function ProductDetails({ initialProduct = null }) {
   const { id } = useParams();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(initialProduct);
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -29,20 +29,18 @@ export default function ProductDetails() {
   const location = useLocation();
 
   const authenticated = isAuthenticated();
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/';
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/';
-
-  // Helper function to build image URL
   const buildImageUrl = (path) => {
-    if (!path) return null;
+    if (!path) return PLACEHOLDER_IMAGE;
     if (path.startsWith("http") || path.startsWith("//")) return path;
-    // Remove leading slash if present to avoid double slashes
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    return apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${cleanPath}` : path;
+    return `${apiBaseUrl.replace(/\/$/, '')}/${cleanPath}`;
   };
 
   useEffect(() => {
     const fetchProduct = async () => {
+      if (product && product.id === id) return;
       try {
         setLoading(true);
         setError(null);
@@ -51,16 +49,6 @@ export default function ProductDetails() {
         setProduct(productData);
         setQuantity(1);
         setActiveImageIndex(0);
-        
-        // Check if product is liked (only if authenticated)
-        if (authenticated) {
-          try {
-            const likedResponse = await api.get(API_ENDPOINTS.USER.CHECK_LIKED_PRODUCT(id));
-            setIsLiked(likedResponse.data.data.isLiked);
-          } catch (err) {
-            console.error('Error checking liked status:', err);
-          }
-        }
       } catch (error) {
         console.error("Error fetching product", error);
         setError(error.response?.data?.message || "Impossible de charger ce produit. Veuillez réessayer plus tard.");
@@ -68,16 +56,30 @@ export default function ProductDetails() {
         setLoading(false);
       }
     };
+
+    const checkLikedStatus = async () => {
+      if (authenticated && id) {
+        try {
+          const likedResponse = await api.get(API_ENDPOINTS.USER.CHECK_LIKED_PRODUCT(id));
+          setIsLiked(likedResponse.data.data.isLiked);
+        } catch (err) {
+          console.error('Error checking liked status:', err);
+        }
+      }
+    };
+
     if (!id) return;
-    fetchProduct();
-  }, [id, authenticated]);
+    if (!initialProduct) {
+      fetchProduct();
+    }
+    checkLikedStatus();
+  }, [id, authenticated, initialProduct]);
 
   const handleToggleLike = async () => {
     if (!authenticated) {
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
-
     try {
       setIsTogglingLike(true);
       if (isLiked) {
@@ -89,13 +91,11 @@ export default function ProductDetails() {
       }
     } catch (err) {
       console.error('Error toggling like:', err);
-      alert('Erreur lors de la mise à jour des favoris');
     } finally {
       setIsTogglingLike(false);
     }
   };
 
-  // Helper function to get product title (fallback to description if title doesn't exist)
   const getProductTitle = (product) => {
     if (product?.title) return product.title;
     if (product?.description) {
@@ -112,37 +112,12 @@ export default function ProductDetails() {
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
-  const getDiscountValue = (product) => {
-    const raw = product?.discount;
-    if (product?.discountType === 'PRICE') {
-      if (typeof raw === 'number') return raw / 100;
-      return toNumber(raw);
-    }
-    if (product?.discountType === 'PERCENT') {
-      return toNumber(raw);
-    }
-    return 0;
-  };
-
-  // Helper function to calculate old price based on discount
-  const calculateOldPrice = (product) => {
-    const originalPrice = toNumber(product?.price ?? 0);
-    const finalPrice = toNumber(product?.finalPrice ?? 0);
-    const discountValue = getDiscountValue(product);
-    if (!originalPrice) return null;
-    if (product?.discountType && discountValue > 0 && finalPrice > 0 && finalPrice < originalPrice) {
-      return originalPrice;
-    }
-    return null;
-  };
-
-  // Helper function to check if product has discount
-  const hasDiscount = (product) => {
-    const discountValue = getDiscountValue(product);
-    return !!product?.discountType && discountValue > 0;
-  };
-
-  // Build gallery images from thumbnailUrl and images array
+  const currentPrice = product?.finalPrice ?? product?.price ?? 0;
+  const priceValue = typeof currentPrice === "number" ? currentPrice.toFixed(2) : currentPrice;
+  const oldPrice = product?.price > product?.finalPrice ? product.price : null;
+  const showDiscount = !!product?.discountType && product?.discount > 0;
+  const discountValue = product?.discount || 0;
+  
   const galleryImages = product
     ? [
         ...(product.thumbnailUrl ? [buildImageUrl(product.thumbnailUrl)] : []),
@@ -154,7 +129,7 @@ export default function ProductDetails() {
 
   const mainImage = galleryImages.length > 0 
     ? (galleryImages[activeImageIndex] || galleryImages[0])
-    : (product?.thumbnailUrl ? buildImageUrl(product.thumbnailUrl) : PLACEHOLDER_IMAGE);
+    : PLACEHOLDER_IMAGE;
 
   if (loading) {
     return (
@@ -165,93 +140,30 @@ export default function ProductDetails() {
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
       <div>
         {authenticated ? <ClientNavbar /> : <Navbar />}
-        <div className="flex flex-col gap-4 justify-center items-center min-h-screen">
-          <p className="font-montserrat text-gray-500 text-center">{error}</p>
-          {!authenticated && (
-            <Link
-              to="/login"
-              className="px-6 cursor-pointer py-2 rounded-full bg-brandRed text-white hover:bg-hoverBrandRed transition-colors font-montserrat"
-            >
-              Connexion
-            </Link>
-          )}
-          <button
-            onClick={() => {
-              window.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'instant'
-              });
-              navigate(-1);
-            }}
-            className="px-6 cursor-pointer py-2 rounded-full bg-brandRed text-white hover:bg-hoverBrandRed transition-colors font-montserrat"
-          >
-            Retour
-          </button>
+        <div className="flex flex-col gap-4 justify-center items-center min-h-screen pt-20">
+          <p className="font-montserrat text-gray-500 text-center">{error || "Produit non trouvé"}</p>
+          <Link to="/" className="px-6 py-2 rounded-full bg-brandRed text-white hover:bg-hoverBrandRed transition-colors font-montserrat">
+            Retour à l'accueil
+          </Link>
         </div>
       </div>
     );
   }
 
-  if (!product) {
-    return null;
-  }
-
-  // Get price based on available fields (prefer finalPrice when available)
-  const currentPrice = product.finalPrice ?? product.price ?? 0;
-  const priceValue = currentPrice 
-    ? (typeof currentPrice === "number" ? currentPrice.toFixed(2) : currentPrice)
-    : "N/A";
-  
-  // Calculate old price and check if discount exists
-  const oldPrice = calculateOldPrice(product);
-  const showDiscount = hasDiscount(product);
-
-  const discountValue = getDiscountValue(product);
-  
-  // Calculate total price (price * quantity)
-  const totalPrice = currentPrice * quantity;
-  const displayTotalPrice = typeof totalPrice === "number" ? totalPrice.toFixed(2) : totalPrice;
-
   const isAvailable = product?.status === true;
-  const canDecrease = quantity > 1;
-  const canIncrease = quantity < 99;
+  const displayTotalPrice = (currentPrice * quantity).toFixed(2);
 
-  const canAddToCart = authenticated;
-
-  const productTitle = getProductTitle(product);
-  
-  // Handle back navigation with scroll to top
-  const handleBack = () => {
-    // Scroll to top before navigating
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant'
-    });
-    navigate(-1);
-    // Also scroll after a short delay to ensure it works even if browser restores scroll position
-    setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant'
-      });
-    }, 100);
-  };
-    
   return (
     <div>
       {authenticated ? <ClientNavbar /> : <Navbar />}
-      <div className="px-4 mt-16 sm:px-6 lg:px-8 py-6 bg-brandWhite min-h-screen">
+      <div className="px-4 mt-16 sm:px-6 lg:px-8 py-6 bg-brandWhite min-h-screen pt-20">
         <div className="max-w-7xl mx-auto">
-          {/* Back Button */}
           <button
-            onClick={handleBack}
+            onClick={() => navigate(-1)}
             className="flex items-center cursor-pointer gap-2 text-brandBrown hover:text-brandRed transition-colors duration-300 mb-4 font-montserrat"
           >
             <ArrowLeft size={20} />
@@ -259,225 +171,136 @@ export default function ProductDetails() {
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
-            {/* Product Images */}
-            <div className="space-y-3">
-              {/* Main Image */}
-              <div className="relative w-full max-w-lg mx-auto lg:mx-0 aspect-square overflow-hidden rounded-lg bg-brandSwhite">
-                <img
+            <div className="space-y-4">
+              <div className="relative w-full max-w-lg mx-auto lg:mx-0 aspect-square overflow-hidden rounded-lg bg-brandSwhite shadow-md">
+                <Image
                   src={mainImage}
-                  alt={productTitle}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = PLACEHOLDER_IMAGE;
-                  }}
+                  alt={getProductTitle(product)}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 512px"
                 />
                 {showDiscount && (
-                  <div className="absolute top-3 right-3 bg-brandRed text-white px-4 py-1 rounded-md text-sm font-montserrat font-light">
-                    {product.discountType === 'PERCENT'
-                      ? `-${discountValue}%`
-                      : product.discountType === 'PRICE'
-                      ? `-${discountValue}$`
-                      : ''}
+                  <div className="absolute top-3 right-3 bg-brandRed text-white px-4 py-1 rounded-md text-sm font-montserrat font-light z-10">
+                    {product.discountType === 'PERCENT' ? `-${discountValue}%` : `-${discountValue}$`}
                   </div>
                 )}
               </div>
               
-              {/* Secondary Images */}
               {galleryImages.length > 1 && (
-                <div className="mt-4">
-                  <p className="font-montserrat text-sm text-gray-500 mb-2">
-                    Images secondaires
-                  </p>
-                  <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto lg:mx-0">
-                    {galleryImages.map((image, index) => (
-                      <button
-                        key={`${image}-${index}`}
-                        onClick={() => setActiveImageIndex(index)}
-                        className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-colors duration-300 ${
-                          activeImageIndex === index ? "border-brandRed" : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        <img
-                          src={image}
-                          alt={`${productTitle} - ${index + 1}`}
-                          className="w-full cursor-pointer h-full object-cover"
-                          onError={(e) => {
-                            e.target.src = PLACEHOLDER_IMAGE;
-                          }}
-                        />
-                      </button>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto lg:mx-0">
+                  {galleryImages.map((image, index) => (
+                    <button
+                      key={`${image}-${index}`}
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-colors duration-300 ${
+                        activeImageIndex === index ? "border-brandRed shadow-sm" : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <Image
+                        src={image}
+                        alt={`${getProductTitle(product)} - ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="128px"
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Product Info */}
-            <div className="flex flex-col justify-between">
-              <div>
-                <h1 className="font-playfair text-3xl lg:text-4xl font-bold text-l_black mb-3">
-                  {productTitle}
-                </h1>
-
-                <p className="font-montserrat text-base text-gray-700 mb-4 leading-relaxed">
-                  {product.description}
-                </p>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="font-montserrat text-sm text-gray-500 uppercase tracking-widest">
-                      Prix
-                    </p>
-                    {oldPrice ? (
-                      <div>
-                        <p className="font-playfair text-3xl text-brandRed font-semibold">
-                          {priceValue}$
-                        </p>
-                        <p className="font-montserrat text-sm text-gray-400 line-through">
-                          {typeof oldPrice === 'number' ? oldPrice.toFixed(2) : oldPrice}$
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="font-playfair text-3xl text-brandRed font-semibold">
-                        {priceValue}$
-                      </p>
+            <div className="flex flex-col">
+              <h1 className="font-playfair text-3xl lg:text-4xl font-bold text-l_black mb-3">
+                {getProductTitle(product)}
+              </h1>
+              <p className="font-montserrat text-base text-gray-700 mb-6 leading-relaxed">
+                {product.description}
+              </p>
+              
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="font-montserrat text-sm text-gray-500 uppercase tracking-widest mb-1">Prix</p>
+                  <div className="flex items-baseline gap-3">
+                    <p className="font-playfair text-3xl text-brandRed font-semibold">{priceValue}$</p>
+                    {oldPrice && (
+                      <p className="font-montserrat text-lg text-gray-400 line-through">{oldPrice.toFixed(2)}$</p>
                     )}
-                  </div>
-                  <div className="flex gap-3">
-                    {authenticated && (
-                      <button
-                        onClick={handleToggleLike}
-                        disabled={isTogglingLike}
-                        className={`w-11 h-11 cursor-pointer rounded-full border flex items-center justify-center transition-colors disabled:opacity-50 ${
-                          isLiked 
-                            ? 'border-red-500 bg-red-50 hover:bg-red-100' 
-                            : 'border-gray-200 hover:border-brandRed hover:text-brandRed'
-                        }`}
-                        aria-label="Ajouter aux favoris"
-                      >
-                        <Heart 
-                          size={20} 
-                          className={isLiked ? 'text-red-500 fill-red-500' : ''}
-                        />
-                      </button>
-                    )}
-                    <button
-                      className="w-11 h-11 cursor-pointer rounded-full border border-gray-200 flex items-center justify-center hover:border-brandRed hover:text-brandRed transition-colors"
-                      aria-label="Partager"
-                    >
-                      <Share2 size={20} />
-                    </button>
                   </div>
                 </div>
+                <div className="flex gap-3">
+                  {authenticated && (
+                    <button
+                      onClick={handleToggleLike}
+                      disabled={isTogglingLike}
+                      className={`w-11 h-11 cursor-pointer rounded-full border flex items-center justify-center transition-all ${
+                        isLiked ? 'border-red-500 bg-red-50 text-red-500' : 'border-gray-200 hover:border-brandRed hover:text-brandRed'
+                      }`}
+                    >
+                      <Heart size={20} className={isLiked ? 'fill-current' : ''} />
+                    </button>
+                  )}
+                  <button className="w-11 h-11 cursor-pointer rounded-full border border-gray-200 flex items-center justify-center hover:border-brandRed hover:text-brandRed transition-colors">
+                    <Share2 size={20} />
+                  </button>
+                </div>
+              </div>
 
-                {/* Discount Information */}
-                {showDiscount && (
-                  <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="font-montserrat text-sm text-gray-700">
-                      <span className="font-semibold">Offre spéciale:</span>{" "}
-                      {product.discountType === 'PERCENT'
-                        ? `Réduction de ${discountValue}% appliquée!`
-                        : product.discountType === 'PRICE'
-                        ? `Réduction de ${discountValue}$ appliquée!`
-                        : ''}
-                    </p>
-                  </div>
-                )}
-
-                {/* Availability */}
-                <div className="mb-4">
-                  <p className="font-montserrat text-sm text-gray-600">
-                    Disponibilité:{" "}
-                    <span className={`font-semibold ${isAvailable ? "text-green-600" : "text-red-500"}`}>
-                      {isAvailable ? 'Disponible' : 'Pas disponible (Bientôt disponible)'}
-                    </span>
+              {showDiscount && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
+                  <p className="font-montserrat text-sm text-red-800">
+                    <span className="font-bold">Offre spéciale:</span> Réduction de {product.discountType === 'PERCENT' ? `${discountValue}%` : `${discountValue}$`} appliquée!
                   </p>
                 </div>
+              )}
 
-                {/* Quantity Selector */}
-                <div className="mb-6">
-                  <div className="flex flex-col gap-3">
-                    <div>
-                      <label className="block font-montserrat text-sm font-medium text-gray-700 mb-1">
-                        Quantité:
-                      </label>
-                      <div className="flex items-center gap-3">
+              <div className="mb-6">
+                <p className="font-montserrat text-sm text-gray-600 mb-2">
+                  Disponibilité: <span className={`font-semibold ${isAvailable ? "text-green-600" : "text-red-500"}`}>
+                    {isAvailable ? 'Disponible' : 'Bientôt disponible'}
+                  </span>
+                </p>
+                {isAvailable && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden h-12">
                         <button
-                          onClick={() => canDecrease && setQuantity((prev) => Math.max(1, prev - 1))}
-                          disabled={!canDecrease || !isAvailable}
-                          className="w-10 cursor-pointer h-10 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 font-montserrat font-semibold"
-                        >
-                          -
-                        </button>
-                        <span className="font-montserrat text-lg font-semibold w-12 text-center">
-                          {quantity}
-                        </span>
+                          onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                          className="px-4 h-full hover:bg-gray-100 transition-colors font-bold"
+                        >-</button>
+                        <span className="px-4 font-montserrat font-bold min-w-[3rem] text-center">{quantity}</span>
                         <button
-                          onClick={() => canIncrease && setQuantity((prev) => prev + 1)}
-                          disabled={!canIncrease || !isAvailable}
-                          className="w-10 cursor-pointer h-10 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 font-montserrat font-semibold"
-                        >
-                          +
-                        </button>
+                          onClick={() => setQuantity(q => Math.min(99, q + 1))}
+                          className="px-4 h-full hover:bg-gray-100 transition-colors font-bold"
+                        >+</button>
                       </div>
-                      {/* Total Price Display */}
-                      <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                        <div className="flex justify-between items-center">
-                          <span className="font-montserrat text-sm text-gray-600">Total:</span>
-                          <span className="font-playfair text-2xl text-brandRed font-semibold">
-                            {displayTotalPrice}$
-                          </span>
-                        </div>
+                      <div className="flex-1 p-3 bg-gray-50 rounded-lg h-12 flex justify-between items-center px-4">
+                        <span className="text-sm text-gray-500">Total:</span>
+                        <span className="font-playfair text-xl font-bold text-brandRed">{displayTotalPrice}$</span>
                       </div>
                     </div>
-                    {!authenticated && (
-                      <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="font-montserrat text-sm text-gray-700 text-center">
-                          <span className="font-semibold">Créez un compte pour ajouter des produits au panier</span>
-                        </p>
-                      </div>
-                    )}
+                    
                     {authenticated ? (
                       <button
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          if (!product || !product.id) return;
-                          if (!isAvailable) return;
-                          
-                          setIsAddingToCart(true);
-                          try {
-                            await addToCart(product.id, quantity);
-                          } catch (error) {
-                            console.error('Error adding to cart:', error);
-                          } finally {
-                            setIsAddingToCart(false);
-                          }
-                        }}
-                        disabled={isAddingToCart || !product || !isAvailable}
-                        className="w-[90%] mx-auto sm:mx-0 cursor-pointer lg:w-[50%] flex items-center justify-center gap-2 bg-brandRed text-white px-7 py-3 rounded-full hover:bg-hoverBrandRed transition-colors duration-300 font-montserrat font-medium text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        onClick={() => addToCart(product.id, quantity)}
+                        className="w-full h-14 bg-brandRed text-white rounded-full hover:bg-hoverBrandRed transition-all font-montserrat font-bold text-lg flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
                       >
-                        <ShoppingCart size={20} />
-                        <span>
-                          {isAddingToCart
-                            ? 'Ajout en cours...'
-                            : isAvailable
-                            ? 'Ajouter au panier'
-                            : 'Bientôt disponible'}
-                        </span>
+                        <ShoppingCart size={22} />
+                        Ajouter au panier
                       </button>
                     ) : (
                       <Link
-                        to={'/signup'}
-                        className="w-[90%] mx-auto sm:mx-0 cursor-pointer lg:w-[50%] flex items-center justify-center gap-2 bg-brandRed text-white px-7 py-3 rounded-full hover:bg-hoverBrandRed transition-colors duration-300 font-montserrat font-medium text-lg"
+                        to="/signup"
+                        className="w-full h-14 bg-brandRed text-white rounded-full hover:bg-hoverBrandRed transition-all font-montserrat font-bold text-lg flex items-center justify-center gap-3 shadow-lg"
                       >
-                        <UserPlus size={20} />
-                        <span>S'inscrire pour acheter</span>
+                        <UserPlus size={22} />
+                        S'inscrire pour commander
                       </Link>
                     )}
                   </div>
-                </div>
-                
+                )}
               </div>
-
             </div>
           </div>
         </div>
@@ -485,4 +308,3 @@ export default function ProductDetails() {
     </div>
   );
 }
-

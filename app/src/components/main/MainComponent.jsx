@@ -5,6 +5,7 @@ import { useLatestProducts } from "../../contexts/LatestProductsContext";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
+import Image from "next/image";
 import "swiper/css";
 
 const PLACEHOLDER_IMAGE =
@@ -17,7 +18,7 @@ export default function MainComponent() {
   const navigate = useNavigate();
   const [adding, setAdding] = useState({});
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
   const buildImageUrl = (path) => {
     if (!path) return PLACEHOLDER_IMAGE;
@@ -120,17 +121,17 @@ export default function MainComponent() {
           }
         }}
       >
-        <div className="relative h-[280px] sm:h-80 bg-white cursor-pointer">
-          <img
+        <div className="relative h-[280px] sm:h-80 bg-white cursor-pointer overflow-hidden">
+          <Image
             src={imageSrc}
             alt={product?.title || "Produit"}
-            className="h-full w-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = PLACEHOLDER_IMAGE;
-            }}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            priority={true}
           />
 
-          <div className="absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
             {product ? (

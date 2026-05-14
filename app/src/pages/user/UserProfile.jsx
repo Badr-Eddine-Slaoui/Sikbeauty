@@ -5,6 +5,7 @@ import API_ENDPOINTS from '../../config/api';
 import { User, Mail, Phone, MapPin, Heart, ShoppingBag, Calendar, Package } from 'lucide-react';
 import { useNavigate, useSearchParams } from '@/utils/react-router-dom';
 import ClientNavbar from '../../components/Client/ClientNavbar';
+import Image from 'next/image';
 
 export default function UserProfile() {
   const [searchParams] = useSearchParams();
@@ -22,44 +23,28 @@ export default function UserProfile() {
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab) {
-      setActiveTab(tab);
-    }
+    if (tab) setActiveTab(tab);
   }, [searchParams]);
 
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      
-      // Fetch profile data
       const profileRes = await api.get(API_ENDPOINTS.USER.PROFILE);
       setProfile(profileRes.data.data);
       
-      // Fetch liked products
       try {
         const likedRes = await api.get(API_ENDPOINTS.USER.LIKED_PRODUCTS);
         setLikedProducts(likedRes.data.data);
-      } catch (likedErr) {
-        console.error('Error fetching liked products:', likedErr);
-        setLikedProducts([]);
-      }
+      } catch (e) { setLikedProducts([]); }
       
-      // Fetch orders
       try {
         const ordersRes = await api.get(API_ENDPOINTS.USER.ORDERS);
         setOrders(ordersRes.data.data || []);
-      } catch (ordersErr) {
-        console.error('Error fetching orders:', ordersErr);
-        console.error('Orders error details:', ordersErr.response?.data);
-        setOrders([]);
-      }
+      } catch (e) { setOrders([]); }
       
       setError(null);
     } catch (err) {
-      console.error('Error fetching profile data:', err);
-      console.error('Error details:', err.response?.data);
-      console.error('Error status:', err.response?.status);
-      setError('Échec du chargement des données du profil');
+      setError('Échec du chargement des données');
     } finally {
       setLoading(false);
     }
@@ -68,307 +53,96 @@ export default function UserProfile() {
   const handleRemoveLikedProduct = async (productId) => {
     try {
       await api.delete(API_ENDPOINTS.USER.REMOVE_LIKED_PRODUCT(productId));
-      setLikedProducts(likedProducts.filter(item => item.product.id !== productId));
+      setLikedProducts(prev => prev.filter(item => item.product.id !== productId));
     } catch (err) {
-      console.error('Error removing liked product:', err);
-      alert('Échec de la suppression du produit');
+      alert('Erreur');
     }
   };
 
-  const handleProductClick = (productId) => {
-    navigate(`/products/${productId}`);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b5483a] mx-auto"></div>
-          <p className="mt-4 text-gray-600" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-            Chargement...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <p className="text-red-600" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-            {error}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brandRed"></div></div>;
 
   return (
     <>
       <ClientNavbar />
-      <div className="min-h-screen bg-gray-50 py-8 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Profile Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-20 h-20 bg-[#b5483a] rounded-full flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-12 mt-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-100 flex items-center gap-6">
+            <div className="w-20 h-20 bg-brandRed rounded-full flex items-center justify-center shrink-0">
               <User className="w-10 h-10 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800" style={{ fontFamily: "'Playfair Display', serif" }}>
-                {profile?.fullName}
-              </h1>
-              <p className="text-gray-600" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                Membre depuis {new Date(profile?.createdAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
-              </p>
+              <h1 className="text-3xl font-bold font-playfair">{profile?.fullName}</h1>
+              <p className="text-gray-500 font-montserrat">Membre depuis {new Date(profile?.createdAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="flex border-b">
+              {['info', 'orders', 'liked'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider transition-all border-b-2 ${
+                    activeTab === tab ? 'border-brandRed text-brandRed bg-red-50/50' : 'border-transparent text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  {tab === 'info' ? 'Profil' : tab === 'orders' ? 'Commandes' : `Favoris (${likedProducts.length})`}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-8">
+              {activeTab === 'info' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-gray-600"><Mail size={18} className="text-brandRed" /><span>{profile?.email}</span></div>
+                    <div className="flex items-center gap-3 text-gray-600"><Phone size={18} className="text-brandRed" /><span>{profile?.phoneCountryCode} {profile?.phoneNumber}</span></div>
+                    <div className="flex items-center gap-3 text-gray-600"><MapPin size={18} className="text-brandRed" /><span>{profile?.country}</span></div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'orders' && (
+                <div className="space-y-4">
+                  {orders.length === 0 ? (
+                    <div className="text-center py-10"><Package className="mx-auto w-12 h-12 text-gray-300 mb-4" /><p className="text-gray-500">Aucune commande</p></div>
+                  ) : (
+                    orders.map(order => (
+                      <div key={order.id} className="border rounded-xl p-6 flex flex-col sm:flex-row justify-between items-center gap-4 hover:border-brandRed/30 transition-colors">
+                        <div>
+                          <p className="font-bold font-playfair text-lg">Commande #{order.id}</p>
+                          <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-center sm:text-right">
+                          <p className="font-bold text-brandRed text-xl">${((order.totalPrice || 0) / 100).toFixed(2)}</p>
+                          <button onClick={() => navigate(`/orders/${order.id}`)} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-brandRed mt-2">Détails</button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'liked' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {likedProducts.map(item => (
+                    <div key={item.id} className="group border rounded-2xl overflow-hidden hover:shadow-lg transition-all relative">
+                      <div className="relative aspect-square cursor-pointer" onClick={() => navigate(`/products/${item.product.id}`)}>
+                        <Image src={item.product.thumbnailUrl} alt={item.product.title} fill className="object-cover transition-transform group-hover:scale-105" sizes="(max-width: 768px) 100vw, 33vw" />
+                      </div>
+                      <button onClick={() => handleRemoveLikedProduct(item.product.id)} className="absolute top-3 right-3 p-2 bg-white/90 rounded-full text-red-500 hover:bg-red-50 shadow-sm transition-colors"><Heart size={18} fill="currentColor" /></button>
+                      <div className="p-4">
+                        <h3 className="font-bold font-playfair truncate">{item.product.title}</h3>
+                        <p className="text-brandRed font-bold mt-1">${item.product.price.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {likedProducts.length === 0 && <div className="col-span-full text-center py-10 text-gray-500">Aucun favori</div>}
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
-              <button
-                onClick={() => setActiveTab('info')}
-                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'info'
-                    ? 'border-[#b5483a] text-[#b5483a]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                <User className="w-4 h-4 inline mr-2" />
-                Informations
-              </button>
-              <button
-                onClick={() => setActiveTab('orders')}
-                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'orders'
-                    ? 'border-[#b5483a] text-[#b5483a]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                <ShoppingBag className="w-4 h-4 inline mr-2" />
-                Mes Commandes
-              </button>
-              <button
-                onClick={() => setActiveTab('liked')}
-                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'liked'
-                    ? 'border-[#b5483a] text-[#b5483a]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                <Heart className="w-4 h-4 inline mr-2" />
-                Produits Aimés ({likedProducts.length})
-              </button>
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'info' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-start space-x-3">
-                    <Mail className="w-5 h-5 text-[#b5483a] mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        Email
-                      </p>
-                      <p className="text-gray-800 font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        {profile?.email}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <Phone className="w-5 h-5 text-[#b5483a] mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        Téléphone
-                      </p>
-                      <p className="text-gray-800 font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        {profile?.phoneCountryCode} {profile?.phoneNumber}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="w-5 h-5 text-[#b5483a] mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        Pays
-                      </p>
-                      <p className="text-gray-800 font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        {profile?.country}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <Calendar className="w-5 h-5 text-[#b5483a] mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        Date d'inscription
-                      </p>
-                      <p className="text-gray-800 font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        {new Date(profile?.createdAt).toLocaleDateString('fr-FR')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'orders' && (
-              <div>
-                {orders.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                      Vous n'avez pas encore de commandes
-                    </p>
-                    <button
-                      onClick={() => navigate('/client/products')}
-                      className="mt-4 px-6 py-2 bg-[#b5483a] text-white rounded-lg hover:bg-[#9a3d31] transition-colors"
-                      style={{ fontFamily: "'Montserrat', sans-serif" }}
-                    >
-                      Découvrir nos produits
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders.map((order) => (
-                      <div
-                        key={order.id}
-                        className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-800" style={{ fontFamily: "'Playfair Display', serif" }}>
-                              Commande #{order.id}
-                            </h3>
-                            <p className="text-sm text-gray-500" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                              {new Date(order.createdAt).toLocaleDateString('fr-FR', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                              order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                              order.status === 'PAID' ? 'bg-blue-100 text-blue-800' :
-                              order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`} style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                              {order.status === 'DELIVERED' ? 'Livré' :
-                               order.status === 'PAID' ? 'Payé' :
-                               order.status === 'CANCELLED' ? 'Annulé' :
-                               'En attente'}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="border-t border-gray-100 pt-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-gray-600" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                {order.order_items?.length || 0} article{(order.order_items?.length || 0) > 1 ? 's' : ''}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-xl font-bold text-[#b5483a]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                €{((order.totalPrice || 0) / 100).toFixed(2)}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => navigate(`/orders/${order.id}`)}
-                            className="mt-4 w-full px-4 py-2 border border-[#b5483a] text-[#b5483a] rounded-lg hover:bg-[#b5483a] hover:text-white transition-colors"
-                            style={{ fontFamily: "'Montserrat', sans-serif" }}
-                          >
-                            Voir les détails
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'liked' && (
-              <div>
-                {likedProducts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                      Vous n'avez pas encore de produits aimés
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {likedProducts.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
-                      >
-                        <div 
-                          className="relative cursor-pointer"
-                          onClick={() => handleProductClick(item.product.id)}
-                        >
-                          <img
-                            src={item.product.thumbnailUrl}
-                            alt={item.product.title}
-                            className="w-full h-48 object-cover"
-                          />
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveLikedProduct(item.product.id);
-                            }}
-                            className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors"
-                          >
-                            <Heart className="w-5 h-5 text-red-500 fill-red-500" />
-                          </button>
-                        </div>
-                        <div className="p-4">
-                          <h3 
-                            className="text-lg font-semibold text-gray-800 mb-2 cursor-pointer hover:text-[#b5483a]"
-                            style={{ fontFamily: "'Playfair Display', serif" }}
-                            onClick={() => handleProductClick(item.product.id)}
-                          >
-                            {item.product.title}
-                          </h3>
-                          <p className="text-sm text-gray-500 mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                            {item.product.category.name}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <p className="text-xl font-bold text-[#b5483a]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                              €{item.product.price.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-gray-400" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                              Ajouté le {new Date(item.likedAt).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
       </div>
     </>
   );

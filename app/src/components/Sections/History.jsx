@@ -1,5 +1,5 @@
-"use client";
 import React from 'react';
+import Image from 'next/image';
 import HistoryImage from "../../assets/Images/history.png";
 
 export default function History() {
@@ -39,11 +39,13 @@ export default function History() {
 
           {/* Image Content */}
           <div className="order-1 lg:order-2 flex justify-center items-center p-4 sm:p-6 lg:p-8">
-            <div className="relative w-full max-w-md lg:max-w-lg">
-              <img 
-                src={HistoryImage?.src || HistoryImage} 
+            <div className="relative w-full max-w-md lg:max-w-lg aspect-square">
+              <Image 
+                src={HistoryImage} 
                 alt="Beautiful Asian woman with perfect skin"
-                className="w-full h-auto rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                fill
+                className="object-cover rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
               
               {/* Decorative Elements */}

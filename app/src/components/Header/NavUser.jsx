@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getDashboardPath } from "../../utils/auth";
 import PopOutSearch from "./Search";
 import Logo from "../../assets/Logo/SI-K-Beauty-logo.png";
+import Image from "next/image";
 
 function NavUser() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,10 +27,12 @@ function NavUser() {
     <header className="fixed top-0 left-0 w-full flex items-center justify-between px-12 py-4 bg-white shadow-sm z-50">
       {/* Logo */}
       <div className="flex items-center">
-        <img
-          src={Logo?.src || Logo}
+        <Image
+          src={Logo}
           alt="SI-K-Beauty-logo"
-          className="w-12 sm:h-12 object-contain"
+          width={48}
+          height={48}
+          className="object-contain"
         />
       </div>
 

@@ -468,7 +468,7 @@ export default function AdminProducts() {
   const buildImageUrl = (path) => {
     if (!path) return PLACEHOLDER_IMAGE;
     if (path.startsWith("http") || path.startsWith("//")) return path;
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     // Paths from backend are like "uploads/images/..." so we need to ensure proper URL construction
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${apiBaseUrl.replace(/\/$/, '')}${cleanPath}`;

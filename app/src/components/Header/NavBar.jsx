@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getDashboardPath } from "../../utils/auth";
 import PopOutSearch from "./Search";
 import Logo from "../../assets/Logo/SI-K-Beauty-logo.png";
+import Image from "next/image";
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,10 +58,13 @@ function Navbar() {
     <header className="fixed top-0 left-0 w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 py-3 bg-white/95 backdrop-blur-md shadow-sm z-50">
       {/* Logo */}
       <a href="#accueil" onClick={handleNavClick("accueil")} className="flex items-center">
-        <img
-          src={Logo?.src || Logo}
+        <Image
+          src={Logo}
           alt="SI-K-Beauty-logo"
-          className="w-12 sm:h-12 object-contain"
+          width={48}
+          height={48}
+          style={{ height: 'auto' }}
+          className="object-contain"
         />
       </a>
 
@@ -146,7 +150,7 @@ function Navbar() {
       >
         {/* Close Button */}
         <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
-          <img src={Logo?.src || Logo} alt="SI-K-Beauty-logo" className="w-10 h-10 object-contain" />
+          <Image src={Logo} alt="SI-K-Beauty-logo" width={40} height={40} style={{ height: 'auto' }} className="object-contain" />
           <button
             onClick={() => setIsMenuOpen(false)}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"

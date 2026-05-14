@@ -5,6 +5,7 @@ import { Search, ShoppingCart, User, Menu, X, Filter, Package, House, ChevronDow
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import Logo from "../../assets/Logo/SI-K-Beauty-logo.png";
+import Image from "next/image";
 
 function ClientNavbar({ 
   searchTerm = "", 
@@ -44,10 +45,13 @@ function ClientNavbar({
         <div className="flex items-center justify-between py-2 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center shrink-0">
-            <img
-              src={Logo?.src || Logo}
+            <Image
+              src={Logo}
               alt="SI-K-Beauty-logo"
-              className="w-10 h-10 md:w-12 md:h-12 object-contain"
+              width={48}
+              height={48}
+              style={{ height: 'auto' }}
+              className="object-contain"
             />
           </Link>
 
@@ -462,7 +466,7 @@ function ClientNavbar({
           {/* Header with Logo and Close */}
           <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
             <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-              <img src={Logo?.src || Logo} alt="SI-K-Beauty-logo" className="w-10 h-10 object-contain" />
+              <Image src={Logo} alt="SI-K-Beauty-logo" width={40} height={40} style={{ height: 'auto' }} className="object-contain" />
             </Link>
             <button
               onClick={() => setIsMobileMenuOpen(false)}

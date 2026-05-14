@@ -33,7 +33,7 @@ export default function AdminBlogs() {
   
   const editorRef = useRef(null);
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   const buildImageUrl = (path) => {
     if (!path) return PLACEHOLDER_IMAGE;

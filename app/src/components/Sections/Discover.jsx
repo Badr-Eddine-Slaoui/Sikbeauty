@@ -1,5 +1,5 @@
-"use client";
 import React from 'react';
+import Image from 'next/image';
 
 export default function Discover() {
   return (
@@ -123,11 +123,13 @@ export default function Discover() {
           <div className="relative">
             <div className="bg-gradient-to-br from-[#F5F5DC] to-[#F0E68C] rounded-2xl p-4 lg:p-6 relative overflow-hidden">
               {/* Product Image */}
-              <div className="relative z-10">
-                <img 
+              <div className="relative z-10 w-full h-[350px]">
+                <Image 
                   src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=450&fit=crop&q=80"
                   alt="SI K-Beauty Products"
-                  className="w-full h-auto max-h-[350px] object-cover rounded-xl shadow-xl"
+                  fill
+                  className="object-cover rounded-xl shadow-xl"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
               

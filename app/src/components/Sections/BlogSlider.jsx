@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop&q=80';
 
+import Image from 'next/image';
+
 function BlogCard({ blog, apiBaseUrl }) {
   const buildImageUrl = (path) => {
     if (!path) return PLACEHOLDER_IMAGE;
@@ -28,14 +30,13 @@ function BlogCard({ blog, apiBaseUrl }) {
       to={`/blog/${blog.slug}`}
       className="shrink-0 w-[300px] mb-5 h-[420px] bg-white overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group flex flex-col"
     >
-      <div className="w-full h-[180px] overflow-hidden shrink-0">
-        <img
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+      <div className="w-full h-[180px] relative overflow-hidden shrink-0">
+        <Image
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
           src={buildImageUrl(blog.thumbnailUrl)}
           alt={blog.title}
-          onError={(e) => {
-            e.target.src = PLACEHOLDER_IMAGE;
-          }}
+          fill
+          sizes="300px"
         />
       </div>
 
@@ -73,17 +74,19 @@ function BlogCard({ blog, apiBaseUrl }) {
   );
 }
 
-export default function BlogSlider() {
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function BlogSlider({ initialBlogs = [] }) {
+  const [blogs, setBlogs] = useState(initialBlogs);
+  const [loading, setLoading] = useState(initialBlogs.length === 0);
   const [error, setError] = useState(null);
   const sliderRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   useEffect(() => {
+    if (initialBlogs.length > 0) return;
+    
     const fetchBlogs = async () => {
       try {
         setLoading(true);
@@ -98,7 +101,7 @@ export default function BlogSlider() {
     };
 
     fetchBlogs();
-  }, []);
+  }, [initialBlogs]);
 
   const checkScrollButtons = () => {
     if (sliderRef.current) {

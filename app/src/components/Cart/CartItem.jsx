@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
+import Image from 'next/image';
 
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=500&fit=crop";
 
@@ -10,11 +11,11 @@ export default function CartItem({ item }) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/';
 
   // Helper function to build image URL
   const buildImageUrl = (path) => {
-    if (!path) return null;
+    if (!path) return PLACEHOLDER_IMAGE;
     if (path.startsWith("http") || path.startsWith("//")) return path;
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     return apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${cleanPath}` : path;
@@ -39,15 +40,14 @@ export default function CartItem({ item }) {
   };
 
   const product = item.product || {};
-  const imageUrl = product.thumbnailUrl ? buildImageUrl(product.thumbnailUrl) : PLACEHOLDER_IMAGE;
+  const imageUrl = buildImageUrl(product.thumbnailUrl);
+  
   const toNumber = (value) => {
     if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
     const parsed = parseFloat(value);
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
-  // Backend cart response already includes the discounted unit price as `product.unitPrice`
-  // and the base price as `product.price` (both formatted as strings like "850.00").
   const basePrice = toNumber(product.price ?? 0);
   const unitPrice = toNumber(product.unitPrice ?? product.price ?? 0);
 
@@ -65,13 +65,12 @@ export default function CartItem({ item }) {
             <span className="text-white text-xs font-semibold bg-red-600 px-2 py-1 rounded">Indisponible</span>
           </div>
         )}
-        <img
+        <Image
           src={imageUrl}
           alt={product.title || 'Produit'}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.target.src = PLACEHOLDER_IMAGE;
-          }}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 100vw, 128px"
         />
       </div>
 
@@ -105,7 +104,6 @@ export default function CartItem({ item }) {
 
         {/* Quantity Controls and Price */}
         <div className="flex flex-row sm:flex-row items-center justify-between sm:justify-end gap-3 sm:gap-4">
-          {/* Quantity Controls */}
           <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
             <button
               onClick={handleDecrement}
@@ -128,14 +126,12 @@ export default function CartItem({ item }) {
             </button>
           </div>
 
-          {/* Total Price */}
           <div className="text-right min-w-[84px]">
             <p className="font-montserrat text-lg font-bold text-brandRed">
               ${finalPrice.toFixed(2)}
             </p>
           </div>
 
-          {/* Remove Button */}
           <button
             onClick={handleRemove}
             disabled={isRemoving}
@@ -150,4 +146,3 @@ export default function CartItem({ item }) {
     </div>
   );
 }
-
