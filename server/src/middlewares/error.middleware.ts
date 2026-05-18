@@ -11,10 +11,8 @@ export const errorHandler = (
     res: Response,
     _next: NextFunction ): void => {
 
-        // Log errors for debugging (full trace only in development)
-        if (process.env.NODE_ENV !== 'production') {
-            console.error(err);
-        }
+        // Log errors for debugging
+        console.error('Error occurred:', err);
 
         // Handle Zod validation errors that escaped middleware
         if (err instanceof ZodError) {
