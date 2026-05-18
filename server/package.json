@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "npx prisma generate && nodemon src/index.ts",
+    "build": "npx prisma generate && tsc",
+    "start": "node dist/index.js",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint --fix --ext .js,.ts .",
     "seed": "ts-node prisma/seed.ts",

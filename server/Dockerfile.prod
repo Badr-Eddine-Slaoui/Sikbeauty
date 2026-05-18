@@ -1,0 +1,20 @@
+FROM node:lts-alpine
+
+WORKDIR /app
+
+# Install openssl for Prisma engines compatibility
+RUN apk add --no-cache openssl
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+# Generate Prisma Client & compile TypeScript to Javascript in dist/
+RUN npm run build
+
+EXPOSE 3000
+
+# Execute database migrations and start compiled production Node server
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]

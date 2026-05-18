@@ -1,0 +1,8 @@
+.git
+.gitignore
+.dockerignore
+node_modules/
+.next/
+*.log
+Dockerfile
+Dockerfile.prod

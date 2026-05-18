@@ -1,3 +1,17 @@
-docker-compose.yml 
-app/node_modules
+.git
+.gitignore
+.dockerignore
+node_modules/
+**/node_modules/
+.next/
+**/ .next/
+dist/
+**/dist/
+*.log
+docker-compose.yml
+docker-compose.prod.yml
 Dockerfile
+Dockerfile.prod
+server/Dockerfile.prod
+app/Dockerfile.prod
+server/uploads/

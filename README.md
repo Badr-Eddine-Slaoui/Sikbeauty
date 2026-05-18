@@ -116,6 +116,32 @@ docker compose down
 
 ---
 
+## ⚡ Production Deployment (VPS)
+
+For live production server orchestration on a VPS, the environment operates using optimized multi-stage build files and excludes runtime local volume mounting (preventing host code mounts from overriding compiled static files).
+
+### 1️⃣ Build and Run in Production Mode
+Ensure you have set the production values in `.env` (including `NEXT_PUBLIC_API_URL` pointing to your domain or VPS IP), then run:
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+This compiles:
+- The backend TypeScript source into optimized JavaScript (`dist/`) inside `Dockerfile.prod`.
+- The frontend Next.js bundles (`.next/`) with static optimizations using the standalone `Dockerfile.prod` in the `app/` directory context.
+
+### 2️⃣ Production Database Seeding
+To initialize your production database schema and load seed categories/products:
+```bash
+# Apply migrations
+docker compose -f docker-compose.prod.yml exec server npx prisma migrate deploy
+
+# Seed initial store catalog data
+docker compose -f docker-compose.prod.yml exec server npm run seed
+```
+
+---
+
 ## 🛡️ Security & Authentication Architecture
 Sikbeauty is hardened with enterprise-grade **HTTP-Only Cookie-based Authentication**:
 * Tokens are signed as JWT payloads, then set by the backend server inside `HttpOnly`, `Secure` (in production), and `SameSite: Lax` cookies.
