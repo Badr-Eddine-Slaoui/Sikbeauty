@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import LoginImage from "../../assets/Images/login-image.png";
 import Logo from "../../assets/Logo/SI-K-Beauty-logo.png";
 import Image from "next/image";
+import { COUNTRY_PHONE_CODES, validatePhoneForCode } from "../../utils/countryCodes";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,6 +38,11 @@ function Register() {
     if (formData.password.length < 8) return "Le mot de passe doit contenir au moins 8 caractères";
     if (formData.password !== formData.confirmPassword) return "Les mots de passe ne correspondent pas";
     if (!/^[A-Za-zÀ-ÿ]+(?: [A-Za-zÀ-ÿ'-]+)*$/.test(formData.fullName)) return "Format de nom invalide";
+    
+    // Validateur de numéro de téléphone
+    if (!validatePhoneForCode(formData.phoneCountryCode, formData.phoneNumber)) {
+      return "Numéro de téléphone invalide pour ce code de pays";
+    }
     return null;
   };
 
@@ -145,23 +151,27 @@ function Register() {
 
           <div className="mb-3">
             <div className="flex flex-col sm:flex-row gap-3">
-              <input 
-                type="text" 
+              <select 
                 name="phoneCountryCode"
-                placeholder="+212"
                 value={formData.phoneCountryCode}
                 onChange={handleInputChange}
-                className="placeholder:opacity-50 w-full sm:w-[35%] p-3 border border-black focus:border-brandRed focus:outline-none transition-colors bg-white"
+                className="w-full sm:w-[40%] p-3 border border-black focus:border-brandRed focus:outline-none transition-colors bg-white cursor-pointer"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
                 required
-              />
+              >
+                {COUNTRY_PHONE_CODES.map((c) => (
+                  <option key={`${c.country}-${c.code}`} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
               <input 
                 type="tel" 
                 name="phoneNumber"
                 placeholder="TÉLÉPHONE" 
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
-                className="placeholder:opacity-50 w-full sm:w-[65%] p-3 border border-black focus:border-brandRed focus:outline-none transition-colors bg-white"
+                className="placeholder:opacity-50 w-full sm:w-[60%] p-3 border border-black focus:border-brandRed focus:outline-none transition-colors bg-white"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
                 required
               />

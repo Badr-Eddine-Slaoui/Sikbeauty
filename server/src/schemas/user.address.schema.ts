@@ -15,7 +15,7 @@ export const userAddressSchema = z.object({
         .max(100, 'Email must be less than 100 characters.')
         .trim(),
     phoneCountryCode: z.string()
-        .regex(/^\+\d{1,3}$/, 'Country code must be + followed by 1 – 3 digits.')
+        .regex(/^\+\d{1,4}$/, 'Country code must be + followed by 1 – 4 digits.')
         .trim(),
     phoneNumber: z.string()
         .min(4, 'Phone number is too short.')
@@ -68,7 +68,7 @@ export const upadateUserAddressSchema = z.object({
         .optional(),
   
     phoneCountryCode: z.string()
-        .regex(/^\+\d{1,3}$/, 'Country code must be + followed by 1 – 3 digits.')
+        .regex(/^\+\d{1,4}$/, 'Country code must be + followed by 1 – 4 digits.')
         .trim()
         .optional(),
   

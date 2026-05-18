@@ -9,6 +9,7 @@ import API_ENDPOINTS from '../../config/api';
 import { useCart } from '../../contexts/CartContext';
 import { ArrowLeft, ShoppingCart, AlertTriangle, Package } from 'lucide-react';
 import Image from 'next/image';
+import { COUNTRY_PHONE_CODES, validatePhoneForCode } from '../../utils/countryCodes';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -93,8 +94,14 @@ export default function CheckoutPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!canSubmit) return;
+
+    // Validate phone number
+    if (!validatePhoneForCode(address.phoneCountryCode, address.phoneNumber)) {
+      toast.error("Numéro de téléphone invalide pour ce code de pays");
+      return;
+    }
 
     setSubmitting(true);
     setConflict(null);
@@ -184,8 +191,14 @@ export default function CheckoutPage() {
                     <input value={address.email} onChange={onChange('email')} type="email" className="w-full border rounded-lg p-3" required />
                   </div>
                   <div className="flex gap-2 sm:col-span-2">
-                    <input value={address.phoneCountryCode} onChange={onChange('phoneCountryCode')} className="w-20 border rounded-lg p-3" placeholder="+212" />
-                    <input value={address.phoneNumber} onChange={onChange('phoneNumber')} className="flex-1 border rounded-lg p-3" placeholder="Téléphone" required />
+                    <select value={address.phoneCountryCode} onChange={onChange('phoneCountryCode')} className="w-40 border rounded-lg p-3 bg-white cursor-pointer text-sm">
+                      {COUNTRY_PHONE_CODES.map((c) => (
+                        <option key={`${c.country}-${c.code}`} value={c.code}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    <input value={address.phoneNumber} onChange={onChange('phoneNumber')} className="flex-1 border rounded-lg p-3 text-sm" placeholder="Téléphone" required />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="text-sm font-bold block mb-1">Rue</label>
