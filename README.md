@@ -1,182 +1,135 @@
-# 💄 Sikbeauty
+# 💄 SI-K-Beauty — International Cosmetics E-Commerce Platform
 
-**Sikbeauty** is an international **e-commerce platform** dedicated to cosmetic products.  
-It allows users to create accounts as either **simple clients** (retail buyers) or **professional users** (wholesale buyers), with dynamic pricing based on account type.  
-The platform is **multilingual (Arabic, French, English)** and supports **multiple payment methods** depending on user location.
+Sikbeauty is a premium, multilingual, role-based international e-commerce platform dedicated to high-end cosmetic and beauty products. Engineered for retail and wholesale, the application dynamically adjusts prices, catalogs, tax rates, and checkout payment solutions based on the user's geographical location and customer profile.
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ System Architecture Overview
+
+The system is architected as a decoupled monorepo containing two core services operating inside a seamless orchestrator network:
 
 ```
-Sikbeauty/
-│
-├── app/     # Next.js + TailwindCSS
-│
-└── server/      # Express + Node.js + TypeScript + PostgreSQL
+sikbeauty-next/
+├── app/                 # Next.js 16 (App Router) + React 19 Frontend
+├── server/              # Express.js + TypeScript + Prisma ORM Backend API
+├── docker-compose.yml   # Multi-container Docker orchestrator config
+└── README.md            # Global Project documentation (this file)
 ```
 
----
-
-## 🌐 Features
-
-### 🧑‍💄 User Roles
-- **Simple Client**: Retail buyer, views regular prices.  
-- **Professional Account**: Wholesale buyer, views discounted professional prices.  
-- **Admin**: Manages all products, categories, and pricing.
-
-### 🛍️ E-commerce Features
-- Product browsing and search  
-- Product categories  
-- Image gallery for each product  
-- Retail & wholesale pricing  
-- User dashboards for clients and professionals  
-- Secure authentication & authorization  
-
-### 🌎 Multilingual Support
-- Arabic 🇲🇦  
-- French 🇫🇷  
-- English 🇬🇧  
-
-### 💳 Payment Methods
-- **Inside Morocco:** Cash on delivery (COD)  
-- **Outside Morocco:** Stripe payment gateway  
-
----
-
-## ⚙️ Tech Stack
-
-### Frontend
-- **Next.js** – Component-based UI  
-- **Tailwind CSS** – Utility-first styling  
-- **Context API** – Global state management  
-- **Axios / Fetch** – API communication
-
-### Backend
-- **Node.js + Express.js** – RESTful API  
-- **TypeScript** – Type-safe backend logic  
-- **PostgreSQL** – Relational database  
-- **Prisma ORM (optional)** – Database access layer  
-- **Stripe SDK** – Payment integration  
-- **JWT Authentication** – Secure access control
-
----
-
-## 📁 Frontend Structure
-
-```
-src/
-├── assets/               # Images, fonts, Tailwind config, etc.
-├── components/           # Reusable UI components (Buttons, Cards, Forms)
-├── pages/                # Route-based page components
-│   ├── index/            # Home page
-│   │   └── IndexPage.jsx
-│   ├── auth/             # Login & signup pages
-│   │   ├── LoginPage.jsx
-│   │   └── SignupPage.jsx
-│   ├── client/           # Simple client pages
-│   │   ├── ClientDashboard.jsx
-│   │   ├── ProductsPage.jsx
-│   │   └── ProductDetailsPage.jsx
-│   ├── professional/     # Professional buyer pages
-│   │   ├── ProfessionalDashboard.jsx
-│   │   ├── ProductsPage.jsx
-│   │   └── ProductDetailsPage.jsx
-│   ├── admin/            # Admin management pages
-│   │   └── AdminDashboard.jsx
-├── routes/               # Router configuration & guards
-├── services/             # API calls & authentication logic
-├── utils/                # Helper functions
-├── context/              # React contexts for user/auth/product state
-└── App.jsx               # Root app component
+### 🛰️ Container Orchestration Map
+```mermaid
+graph TD
+    User([Browser Client]) -->|Port 4000| NextApp[Next.js App Container]
+    NextApp -->|Fetch / CORS| ExpressAPI[Express Server Container]
+    Admin([Database Manager]) -->|Port 5555| pgAdmin[pgAdmin Container]
+    ExpressAPI -->|Port 3000| pgAdmin
+    ExpressAPI -->|Prisma Client| Postgres[(PostgreSQL DB Container)]
+    pgAdmin -->|Manage| Postgres
 ```
 
 ---
 
-## ⚙️ Backend Structure (Express + TypeScript)
+## 🌐 Elite Feature Set
 
-```
-backend/
-├── src/
-│   ├── config/           # Environment config, DB connection
-│   ├── controllers/      # Route logic
-│   ├── middlewares/      # Auth, validation, error handling
-│   ├── models/           # Database models (PostgreSQL)
-│   ├── routes/           # API routes
-│   ├── services/         # Business logic
-│   ├── utils/            # Utility functions
-│   └── index.ts          # Server entry point
-└── package.json
-```
+### 🧑‍💼 Multi-Tiered User Roles & Accounts
+* **Simple Client (Retail):** Standard B2C purchasing flow. Customers see retail prices and purchase items normally.
+* **Professional Account (Wholesale B2B):** Verified business partners who benefit from dynamic, discounted wholesale pricing structures.
+* **Admin Administrator:** A robust operational dashboard to oversee products, manage category hierarchies, alter statuses, view customer profiles, and manage incoming orders.
 
----
+### 🗺️ Geo-Targeted Multi-Currency & Payment Workflows
+* 🇲🇦 **Inside Morocco:** Checkout transactions default to standard **Cash-on-Delivery (COD)**.
+* 🌍 **Outside Morocco:** Transactions transition dynamically to **Stripe API** for secure international credit/debit card processing.
 
-## 🧾 API Overview
-
-| Endpoint | Method | Description |
-|-----------|---------|-------------|
-| `/api/auth/signup` | `POST` | Register new user |
-| `/api/auth/login` | `POST` | Login user |
-| `/api/products` | `GET` | Get all products |
-| `/api/products/:id` | `GET` | Get product details |
-| `/api/admin/products` | `POST` | Add new product (admin only) |
-| `/api/categories` | `GET` | Get all categories |
-| `/api/payment/stripe` | `POST` | Handle Stripe payment |
-| `/api/payment/cash` | `POST` | Handle cash-on-delivery order |
+### 🗣️ Seamless Multilingual Support
+Native locale switching across three major languages:
+* **Arabic** (العربية) 🇲🇦
+* **French** (Français) 🇫🇷
+* **English** (English) 🇬🇧
 
 ---
 
-## 🧠 Future Improvements
+## ⚙️ Global Technical Stack
 
-- 🛒 Shopping cart & wishlist  
-- 🧾 Order history tracking  
-- 💬 Live chat support  
-- 📦 Shipment tracking  
-- 🌐 SEO optimization for multilingual pages
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | React 19 + Next.js 16 (App Router) | High-speed component rendering, SEO-optimized metadata, static/SSR pages. |
+| **Frontend Styling** | Vanilla CSS + PostCSS + Tailwind | Fully custom, fluid luxury beauty aesthetic with subtle micro-animations. |
+| **Backend** | Node.js + Express.js + TypeScript | High-performance RESTful API with rigid TypeScript boundaries. |
+| **Database ORM** | PostgreSQL + Prisma ORM | Relational relational persistence with automated migrations and safety schemas. |
+| **Authentication** | HTTP-Only Cookies + JWT | Top-tier security against XSS/CSRF attacks for active user sessions. |
+| **Integrations** | Stripe SDK + libphonenumber-js | International credit card processing and real-time smart phone validation. |
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Rapid Development Setup (Docker Compose)
 
-### 1️⃣ Clone the repository
+The entire environment is orchestrated via Docker Compose. Ensure you have **Docker** and **Docker Compose** installed.
+
+### 1️⃣ Clone the Repository & Configure Env
 ```bash
 git clone https://github.com/LatrachDev/Sikbeauty.git
 cd Sikbeauty
 ```
-
-### 2️⃣ Setup Backend
-```bash
-cd backend
-npm install
-cp .env.example .env
-# configure PostgreSQL, Stripe keys, etc.
-npm run dev
+Create a `.env` file in the root workspace folder matching the following configurations:
+```ini
+PORT=4000
+DATABASE_URL="postgresql://postgres:postgres@db:5432/postgres"
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_PORT=5432
+PGADMIN_DEFAULT_EMAIL="admin@example.com"
+PGADMIN_DEFAULT_PASSWORD=password
+PGADMIN_PORT=5555
 ```
 
-### 3️⃣ Setup Frontend
+### 2️⃣ Build and Boot the Containers
 ```bash
-cd ../frontend
-npm install
-npm run dev
+docker compose up --build -d
 ```
+Docker will pull the images, construct the client and API images, generate the Prisma Client, run migrations, seed the database, and spin up four healthy containers:
 
-The frontend should now run on [http://localhost:5173](http://localhost:5173)  
-and backend on [http://localhost:3000](http://localhost:3000)
+| Container | Service Name | Accessible Address |
+| :--- | :--- | :--- |
+| **Next.js Client** | `next_app` | [http://localhost:4000](http://localhost:4000) |
+| **TypeScript API** | `back-end` | [http://localhost:3000](http://localhost:3000) |
+| **PostgreSQL Database** | `postgres_db` | `localhost:5432` |
+| **pgAdmin Interface** | `pgadmin` | [http://localhost:5555](http://localhost:5555) |
+
+### 3️⃣ Useful Workspace Commands
+```bash
+# View active container status
+docker compose ps
+
+# Access live logs
+docker compose logs -f
+
+# Access backend container shell
+docker compose exec server bash
+
+# Access frontend container shell
+docker compose exec app bash
+
+# Shut down the ecosystem preserving db volumes
+docker compose down
+```
 
 ---
 
-## 👨‍💻 Developers
+## 🛡️ Security & Authentication Architecture
+Sikbeauty is hardened with enterprise-grade **HTTP-Only Cookie-based Authentication**:
+* Tokens are signed as JWT payloads, then set by the backend server inside `HttpOnly`, `Secure` (in production), and `SameSite: Lax` cookies.
+* This completely insulates active user sessions from malicious JavaScript XSS (Cross-Site Scripting) theft.
+* CORS (Cross-Origin Resource Sharing) is configured explicitly between `http://localhost:4000` (Next.js) and `http://localhost:3000` (Express Server) with `credentials: true` enabled.
 
-**Mohammed Latrach**  
-Full Stack Developer & Graphic Designer  
-📷 [Portfolio](https://github.com/LatrachDev) | 💼 [LinkedIn](https://linkedin.com/in/latrachdev)
 ---
 
-**Marouane ADDOU**  
-Software Developer
-📷 [Portfolio](https://github.com/marouaneaddou) | 💼 [LinkedIn](https://linkedin.com/in/marouaneaddou/)
+## 👨‍💻 Primary Authors
+
+* **Mohammed Latrach** — *Full Stack Developer & Art Lead* — [GitHub](https://github.com/LatrachDev) | [LinkedIn](https://linkedin.com/in/latrachdev)
+* **Marouane ADDOU** — *Software Architect* — [GitHub](https://github.com/marouaneaddou) | [LinkedIn](https://linkedin.com/in/marouaneaddou/)
+
 ---
 
 ## 🪪 License
-
-This project is licensed under the **LANDMARK AGENCY**.
+This platform is licensed under **LANDMARK AGENCY**. All rights reserved.

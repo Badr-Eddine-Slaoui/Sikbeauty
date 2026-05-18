@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 SI-K-Beauty — Next.js 16 Frontend Web Application
 
-## Getting Started
+The frontend client of Sikbeauty is built with React 19 and Next.js 16 (App Router), engineered to deliver a luxury user interface with fast performance, smooth micro-animations, and complete responsiveness across mobile, tablet, and desktop screens.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🛠️ Tech Stack & Key Libraries
+
+* **Framework:** Next.js 16 (App Router, Turbopack enabled)
+* **Core Runtime:** React 19 (Server & Client Components)
+* **Styling System:** Vanilla CSS + Tailwind CSS (using fluid luxury spacing and custom themes)
+* **State Management:** React Context API (custom contexts for `AuthContext` and `CartContext`)
+* **API Connection:** Axios Client with dynamic port configuration and withCredentials enabled
+* **Phone Validation:** `libphonenumber-js` (providing live real-time country code formatting & validity validation)
+* **Design Elements:** Lucide React icons, Swiper.js premium sliders, and Recharts statistics
+
+---
+
+## 📂 Frontend Directory Structure
+
+The application separates routing from views to keep pages clean and highly maintainable:
+
+```
+app/
+├── public/              # Static assets, fonts, local video files
+├── src/
+│   ├── app/             # Next.js App Router entry points & error boundaries
+│   │   ├── page.tsx     # Home Page Router delegate
+│   │   ├── layout.tsx   # Global HTML Shell, Root Layout, Google Fonts
+│   │   └── error.tsx    # App Router central error boundaries
+│   ├── assets/          # Static logos, background visuals, fallback placeholders
+│   ├── components/      # Shared components (Navbars, loaders, indicators)
+│   ├── config/          # Axios API central endpoints config
+│   ├── contexts/        # Auth (Authentication state) & Cart (E-commerce cart)
+│   ├── utils/           # Shared utility tools & country phone code assets
+│   └── views/           # Modular view templates mapped from the App Router
+│       ├── admin/       # Admin views (Users dashboard, product tables, orders)
+│       ├── auth/        # Authentication views (Login & registration forms)
+│       ├── checkout/    # Checkout, shipment addresses, Stripe callbacks
+│       ├── client/      # Simple Client retail view pages & details
+│       ├── user/        # Personal customer dashboards, orders, and favorites
+│       └── landing/     # Landing pages, FAQs, policies, contact forms
+├── next.config.ts       # Central Next.js custom configurations
+├── package.json         # Dependencies & dev scripts
+└── tsconfig.json        # TypeScript options
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌟 Premium Features Implemented
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📱 Live Country Code Selector & Real-Time Validator
+Both `SignupPage.jsx` and `CheckoutPage.jsx` feature a highly interactive, validated phone input system:
+1. **Dynamic Dropdown:** Includes a precompiled database of **54 global country codes** loaded dynamically inside a custom styled dropdown.
+2. **Visual Border States:** As users input their phone number, the field dynamically calculates formatting validity:
+   * **Valid Format:** The input border highlights in **emerald green** showing `✓ Numéro de téléphone valide`.
+   * **Invalid Format:** The input border transitions to **rose red** showing `✗ Numéro de téléphone invalide pour ce pays`.
+3. **Form Gatekeeping:** The checkout "Payer" button dynamically locks when the phone input is invalid, ensuring correct data captures before submission.
 
-## Learn More
+### 🖼️ Seamless Next/Image Local Uploads Integration
+To serve images dynamically uploaded to the backend server (on `http://localhost:3000/uploads/...`) without experiencing isolated Docker container proxying errors (400 Bad Request), the application next configuration operates with `unoptimized: true` inside [next.config.ts](file:///home/badr-eddine-slaoui/Documents/transform/sikbeauty-next/next.config.ts). This makes Next.js generate standard, compliant HTML image tags pointing directly to port 3000, allowing all visitor, client, and admin dashboards to load product imagery perfectly.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Independent Local Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If you wish to boot up the Next.js application in isolation outside of Docker:
 
-## Deploy on Vercel
+### 1️⃣ Ensure Env Variables are Configured
+Create or modify the `app/.env` file:
+```ini
+NEXT_PUBLIC_API_URL="http://localhost:3000"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 2️⃣ Install Dependencies
+Ensure you are inside the `app/` folder:
+```bash
+npm install
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3️⃣ Launch the Dev Server
+```bash
+npm run dev
+```
+The dev server launches on [http://localhost:4000](http://localhost:4000) using **Turbopack** for near-instantaneous hot-reloading!
+
+---
+
+## 👨‍💻 Primary Authors
+* **Mohammed Latrach** — *Lead Designer & Frontend Engineer*
+* **Marouane ADDOU** — *Software Engineer*
