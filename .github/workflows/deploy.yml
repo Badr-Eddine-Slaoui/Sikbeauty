@@ -1,0 +1,47 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            echo "🚀 Starting Deployment on Hostinger VPS..."
+            
+            # Navigate to project directory
+            cd /var/www/sikbeauty-next
+            
+            # Pull latest changes from git
+            echo "📥 Fetching latest changes..."
+            git pull origin main
+            
+            # Build and recreate containers seamlessly (zero-downtime & retains all volume data)
+            echo "🐳 Rebuilding and upgrading Docker containers..."
+            docker-compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            
+            # Run database migrations inside the server container
+            # The '-T' flag is critical in CI/CD to disable pseudo-TTY allocation
+            echo "🗄️ Running database migrations..."
+            docker-compose -f docker-compose.prod.yml exec -T server npx prisma migrate deploy
+            
+            # Clean up old unused Docker images to save VPS disk space
+            echo "🧹 Cleaning up system memory and old Docker layers..."
+            docker image prune -f
+            
+            echo "✅ Deployment completed successfully!"
