@@ -63,6 +63,9 @@ export const updateProInfo = async ( id : number, body : UpdateProductInfo ) => 
 };
 
 export  const deleteFileFromStorage = async ( url : string ) => {
+    if (!url || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
+        return;
+    }
     try {
         const filePath = path.join( __dirname, '../..', url );
         // check file exists
@@ -70,10 +73,8 @@ export  const deleteFileFromStorage = async ( url : string ) => {
         console.error( filePath );
         await fs.unlink(filePath);
     }
-    catch {
-        // if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
-        //     throw new AppError('File does not exist', 404 );
-        // }
+    catch (error) {
+        console.error(`Failed to delete file from storage: ${url}`, error);
     }
 };
 

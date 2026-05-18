@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation, Link } from "@/utils/react-router-dom";
-import { ShoppingCart, ArrowLeft, Heart, Share2, UserPlus } from "lucide-react";
+import { ShoppingCart, ArrowLeft, Heart, Share2, UserPlus, Play } from "lucide-react";
 import API_ENDPOINTS, { api } from "../../config/api";
 import ClientNavbar from "../../components/Client/ClientNavbar";
 import { useCart } from "../../contexts/CartContext";
@@ -119,18 +119,19 @@ export default function ProductDetails({ initialProduct = null }) {
   const showDiscount = !!product?.discountType && toNumber(product?.discount) > 0;
   const discountValue = toNumber(product?.discount || 0);
   
-  const galleryImages = product
+  const galleryItems = product
     ? [
-        ...(product.thumbnailUrl ? [buildImageUrl(product.thumbnailUrl)] : []),
+        ...(product.thumbnailUrl ? [{ type: 'image', url: buildImageUrl(product.thumbnailUrl) }] : []),
         ...(Array.isArray(product.images)
-          ? product.images.map(img => buildImageUrl(img)).filter(Boolean)
+          ? product.images.map(img => ({ type: 'image', url: buildImageUrl(img) })).filter(item => item.url)
           : []),
-      ].filter(Boolean)
+        ...(product.videoUrl ? [{ type: 'video', url: buildImageUrl(product.videoUrl) }] : []),
+      ]
     : [];
 
-  const mainImage = galleryImages.length > 0 
-    ? (galleryImages[activeImageIndex] || galleryImages[0])
-    : PLACEHOLDER_IMAGE;
+  const activeItem = galleryItems.length > 0
+    ? (galleryItems[activeImageIndex] || galleryItems[0])
+    : { type: 'image', url: PLACEHOLDER_IMAGE };
 
   if (loading) {
     return (
@@ -174,14 +175,22 @@ export default function ProductDetails({ initialProduct = null }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
             <div className="space-y-4">
               <div className="relative w-full max-w-lg mx-auto lg:mx-0 aspect-square overflow-hidden rounded-lg bg-brandSwhite shadow-md">
-                <Image
-                  src={mainImage}
-                  alt={getProductTitle(product)}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 512px"
-                />
+                {activeItem?.type === 'video' ? (
+                  <video
+                    src={activeItem.url}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={activeItem?.url || PLACEHOLDER_IMAGE}
+                    alt={getProductTitle(product)}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 512px"
+                  />
+                )}
                 {showDiscount && (
                   <div className="absolute top-3 right-3 bg-brandRed text-white px-4 py-1 rounded-md text-sm font-montserrat font-light z-10">
                     {product.discountType === 'PERCENT' ? `-${discountValue}%` : `-${discountValue}$`}
@@ -189,23 +198,29 @@ export default function ProductDetails({ initialProduct = null }) {
                 )}
               </div>
               
-              {galleryImages.length > 1 && (
+              {galleryItems.length > 1 && (
                 <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto lg:mx-0">
-                  {galleryImages.map((image, index) => (
+                  {galleryItems.map((item, index) => (
                     <button
-                      key={`${image}-${index}`}
+                      key={`${item.url}-${index}`}
                       onClick={() => setActiveImageIndex(index)}
                       className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-colors duration-300 ${
                         activeImageIndex === index ? "border-brandRed shadow-sm" : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
-                      <Image
-                        src={image}
-                        alt={`${getProductTitle(product)} - ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="128px"
-                      />
+                      {item.type === 'video' ? (
+                        <div className="relative w-full h-full bg-black flex items-center justify-center">
+                          <Play size={24} className="text-white opacity-85" />
+                        </div>
+                      ) : (
+                        <Image
+                          src={item.url}
+                          alt={`${getProductTitle(product)} - ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="128px"
+                        />
+                      )}
                     </button>
                   ))}
                 </div>

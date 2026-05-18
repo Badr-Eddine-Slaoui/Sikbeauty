@@ -32,6 +32,7 @@ export default function AdminProducts() {
     status: true,
     images: [],
     video: null,
+    thumbnail: null,
   });
   const [existingImages, setExistingImages] = useState([]); // Track existing images from product
   const [imagesToRemove, setImagesToRemove] = useState([]); // Track images to delete
@@ -217,6 +218,7 @@ export default function AdminProducts() {
       status: true,
       images: [],
       video: null,
+      thumbnail: null,
     });
     setExistingImages([]);
     setImagesToRemove([]);
@@ -278,6 +280,26 @@ export default function AdminProducts() {
           API_ENDPOINTS.ADMIN.PRODUCTS.UPDATE(editingProduct.id), 
           updateData
         );
+
+        // Upload new thumbnail if selected
+        if (formData.thumbnail) {
+          const thumbnailFormData = new FormData();
+          thumbnailFormData.append('image', formData.thumbnail);
+          await api.patch(
+            API_ENDPOINTS.ADMIN.PRODUCTS.UPDATE_THUMBNAIL(editingProduct.id),
+            thumbnailFormData
+          );
+        }
+
+        // Upload new video if selected
+        if (formData.video) {
+          const videoFormData = new FormData();
+          videoFormData.append('video', formData.video);
+          await api.post(
+            API_ENDPOINTS.ADMIN.PRODUCTS.ADD_IMAGE_OR_VIDEO(editingProduct.id),
+            videoFormData
+          );
+        }
 
         // Add new images (one at a time since backend only accepts maxCount: 1)
         if (formData.images.length > 0) {
@@ -416,6 +438,7 @@ export default function AdminProducts() {
           status: detailedProduct.status !== undefined ? detailedProduct.status : true,
           images: [],
           video: null,
+          thumbnail: null,
         });
 
         setShowForm(true);
@@ -849,6 +872,34 @@ export default function AdminProducts() {
                     Maximum images reached. Remove an existing image to add a new one.
                   </p>
                 )}
+                {editingProduct && (
+                  <div className="mt-4 mb-4">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      Change Thumbnail Image (Max 2MB)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          if (file.size > 2 * 1024 * 1024) {
+                            toast.error('Thumbnail size exceeds 2MB');
+                            return;
+                          }
+                          setFormData(prev => ({ ...prev, thumbnail: file }));
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B5483A] focus:border-transparent"
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    />
+                    {formData.thumbnail && (
+                      <p className="mt-2 text-xs text-green-600 font-semibold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                        New thumbnail selected: {formData.thumbnail.name}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {editingProduct && editingProduct.thumbnailUrl && (
                   <div className="mt-4">
                     <p className="text-xs text-gray-500 mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -857,7 +908,7 @@ export default function AdminProducts() {
                     <div className="grid grid-cols-4 gap-4">
                       <div className="relative border-2 rounded-lg overflow-hidden border-gray-200">
                         <img
-                          src={buildImageUrl(editingProduct.thumbnailUrl)}
+                          src={formData.thumbnail ? URL.createObjectURL(formData.thumbnail) : buildImageUrl(editingProduct.thumbnailUrl)}
                           alt="Current thumbnail"
                           className="w-full h-32 object-cover"
                         />
