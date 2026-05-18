@@ -99,9 +99,9 @@ export const metadata: Metadata = {
     },
 
     icons: {
-        icon: "../../public/Pictures/SI-K-Beauty-logo.png",
-        shortcut: "../../public/Pictures/SI-K-Beauty-logo.png",
-        apple: "../../public/Pictures/SI-K-Beauty-logo.png",
+        icon: "/Pictures/SI-K-Beauty-logo.png",
+        shortcut: "/Pictures/SI-K-Beauty-logo.png",
+        apple: "/Pictures/SI-K-Beauty-logo.png",
     },
 
     manifest: "/site.webmanifest",

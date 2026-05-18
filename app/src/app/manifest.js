@@ -9,12 +9,12 @@ export default function manifest() {
     theme_color: '#B5483A',
     icons: [
       {
-        src: '/app/public/Pictures/SI-K-Beauty-logo.png',
+        src: '/Pictures/SI-K-Beauty-logo.png',
         sizes: 'any',
         type: 'image/x-icon',
       },
       {
-        src: '/app/public/Pictures/SI-K-Beauty-logo.png',
+        src: '/Pictures/SI-K-Beauty-logo.png',
         sizes: '180x180',
         type: 'image/png',
       },
