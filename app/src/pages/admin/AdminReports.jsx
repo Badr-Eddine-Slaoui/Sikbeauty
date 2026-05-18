@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../config/api';
 import API_ENDPOINTS from '../../config/api';
+import toast from 'react-hot-toast';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Download, TrendingUp, ShoppingCart, DollarSign, Users } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -24,7 +25,9 @@ export default function AdminReports() {
       setError(null);
     } catch (err) {
       console.error('Error fetching reports data:', err);
-      setError('Échec du chargement des données de rapport');
+      const errorMessage = err.response?.data?.message || 'Échec du chargement des données de rapport';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

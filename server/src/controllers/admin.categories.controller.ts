@@ -11,7 +11,6 @@ import { AppError }         from '../utils/AppErros';
 export const newCategory = async ( req : Request, res : Response ) => {
     // Create categories 
     const newCategoryData = await createCategory( req.body );
-    console.error('Create new category');
     res.status( StatusCodes.CREATED ).json({
         status  :   'success',
         message :   'Category created successfully',

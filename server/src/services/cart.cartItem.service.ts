@@ -206,7 +206,6 @@ export const retrieveCartInfo = async ( user : User ) => {
             quantity    : item.quantity,
         };
     });
-    console.error( "error in this function")
     return {
         cartId : cartInfo.carts?.id,
         // currency : cartInfo.carts.currency,

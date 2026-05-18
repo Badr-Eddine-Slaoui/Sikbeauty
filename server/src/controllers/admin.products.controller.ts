@@ -138,9 +138,7 @@ export const updateImagePoduct = async ( req : Request, res : Response ) => {
     if (req.file) {
         let url = await saveFileToStorage( req.file, 'uploads/images' );
         newImages = [...product.images];
-        console.error( 'first', newImages );
         newImages[ imageId - 1 ] = url;
-        console.error( 'second', newImages );
     }
     // update url db
     await prisma.product.update({
@@ -161,7 +159,6 @@ export const updateImagePoduct = async ( req : Request, res : Response ) => {
 // Add new image 
 export const addNewImageVideo = async ( req : Request, res : Response ) => {
     const id        =   Number( req.params.id );
-    console.error('Hello world');
     // Check product is exist 
     const product = await getProductUsingId( id, req.user.role === 'admin' ? ' ': 'user' );
     const files = req.files as MulterFiles;
@@ -176,14 +173,11 @@ export const addNewImageVideo = async ( req : Request, res : Response ) => {
         // Add image to storage
         const url = await saveFileToStorage( image, 'uploads/images' );
         newImages = [...product.images];
-        console.error( 'first', newImages );
         newImages.push(url);
-        console.error( 'secons', newImages );
     }
     if ( video ) {
         await deleteFileFromStorage( product.videoUrl );
         urlVideo = await saveFileToStorage( video, 'uploads/videos' );
-        console.error('\n', urlVideo );
     }
     // Save image or video links to db
     await prisma.product.update({

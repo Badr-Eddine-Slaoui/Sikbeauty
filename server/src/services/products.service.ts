@@ -10,7 +10,6 @@ export const getProductUsingId = async ( id : number, roleUser : string ) => {
         },
         
     });
-    console.error( product );
     if ( product === null ) 
         throw new AppError('Product not found', 404);
     return product;

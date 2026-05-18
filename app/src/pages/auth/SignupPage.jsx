@@ -116,7 +116,7 @@ function Register() {
         </h1>
 
         {error && (
-          <div className="w-full max-w-xl mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="w-full max-w-xl mb-4 p-4 bg-red-50 border border-brandRed/20 rounded-2xl text-sm text-red-700 shadow-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {error}
           </div>
         )}

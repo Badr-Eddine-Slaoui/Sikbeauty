@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation, Link } from "@/utils/react-router-dom";
 import { ShoppingCart, ArrowLeft, Heart, Share2, UserPlus, Play } from "lucide-react";
 import API_ENDPOINTS, { api } from "../../config/api";
+import toast from 'react-hot-toast';
 import ClientNavbar from "../../components/Client/ClientNavbar";
 import { useCart } from "../../contexts/CartContext";
 import PageLoader from "../../components/ui/PageLoader";
@@ -91,6 +92,7 @@ export default function ProductDetails({ initialProduct = null }) {
       }
     } catch (err) {
       console.error('Error toggling like:', err);
+      toast.error(err.response?.data?.message || 'Échec de la mise à jour du favori');
     } finally {
       setIsTogglingLike(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { api, API_ENDPOINTS } from '../../config/api';
+import toast from 'react-hot-toast';
 import { Eye, X, Search } from 'lucide-react';
 import Pagination from '../../components/Admin/Pagination';
 
@@ -41,7 +42,7 @@ export default function AdminUsers() {
       setError(null);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError(err.response?.data?.message || 'Failed to load users');
+      setError(err.response?.data?.message || 'Échec du chargement des utilisateurs');
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ export default function AdminUsers() {
       setUserOrders(response.data);
     } catch (err) {
       console.error('Error fetching user orders:', err);
-      alert(err.response?.data?.message || 'Failed to load user orders');
+      toast.error(err.response?.data?.message || 'Échec du chargement des commandes');
     } finally {
       setLoadingOrders(false);
     }

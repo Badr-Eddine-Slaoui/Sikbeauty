@@ -1,6 +1,7 @@
 import { NextFunction, 
     Request, 
     Response }          from 'express';
+import { ZodError }     from 'zod';
 
 import { CustomError }  from '../types';
 
@@ -10,7 +11,23 @@ export const errorHandler = (
     res: Response,
     _next: NextFunction ): void => {
 
-        console.error(err);
+        // Log errors for debugging (full trace only in development)
+        if (process.env.NODE_ENV !== 'production') {
+            console.error(err);
+        }
+
+        // Handle Zod validation errors that escaped middleware
+        if (err instanceof ZodError) {
+            const flattened = err.flatten();
+            const firstFieldError = Object.values(flattened.fieldErrors).flat().filter(Boolean)[0] as string | undefined;
+            const firstFormError = flattened.formErrors?.[0] as string | undefined;
+            res.status(400).json({
+                status: 'fail',
+                message: firstFieldError || firstFormError || 'Données invalides.',
+                errors: flattened,
+            });
+            return;
+        }
 
         // Determine if it's an "operational" error (AppError) or unknown programming error
         const statusCode = err.statusCode ?? 500;
@@ -20,7 +37,7 @@ export const errorHandler = (
         const message =
           err.isOperational && err.message
             ? err.message
-            : 'Something went wrong!';
+            : 'Une erreur inattendue est survenue. Veuillez réessayer.';
       
         res.status(statusCode).json({
           status,

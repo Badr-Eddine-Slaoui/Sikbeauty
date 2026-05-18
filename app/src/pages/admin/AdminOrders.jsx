@@ -30,7 +30,7 @@ export default function AdminOrders() {
       setOrders(response.data.data || []);
       setPagination(response.data.pageInfo || pagination);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch orders');
+      setError(err.response?.data?.message || 'Échec du chargement des commandes');
       console.error('Error fetching orders:', err);
     } finally {
       setLoading(false);
@@ -44,7 +44,7 @@ export default function AdminOrders() {
       setSelectedOrder(response.data);
       setViewingDetails(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch order details');
+      setError(err.response?.data?.message || 'Échec du chargement des détails de la commande');
       console.error('Error fetching order details:', err);
     } finally {
       setLoading(false);
@@ -247,7 +247,7 @@ export default function AdminOrders() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="p-4 bg-red-50 border border-brandRed/20 rounded-2xl text-sm text-red-700 shadow-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
           {error}
         </div>
       )}

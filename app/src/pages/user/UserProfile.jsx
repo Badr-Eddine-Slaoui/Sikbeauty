@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../config/api';
 import API_ENDPOINTS from '../../config/api';
+import toast from 'react-hot-toast';
 import { User, Mail, Phone, MapPin, Heart, ShoppingBag, Calendar, Package } from 'lucide-react';
 import { useNavigate, useSearchParams } from '@/utils/react-router-dom';
 import ClientNavbar from '../../components/Client/ClientNavbar';
@@ -55,7 +56,7 @@ export default function UserProfile() {
       await api.delete(API_ENDPOINTS.USER.REMOVE_LIKED_PRODUCT(productId));
       setLikedProducts(prev => prev.filter(item => item.product.id !== productId));
     } catch (err) {
-      alert('Erreur');
+      toast.error('Échec de la suppression du favori');
     }
   };
 

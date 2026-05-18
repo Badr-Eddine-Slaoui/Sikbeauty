@@ -24,7 +24,6 @@ export const verifyToken = ( req : Request, res : Response, next : NextFunction 
 
     try {
         const decoded = jwt.verify( token, config.jwt_secret ) as User;
-        console.error( 'verify token', decoded.role, decoded.id );
         req.user = {
             role        :   decoded.role,
             id          :   decoded.id,

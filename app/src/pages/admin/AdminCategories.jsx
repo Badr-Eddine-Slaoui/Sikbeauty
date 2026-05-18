@@ -43,8 +43,8 @@ export default function AdminCategories() {
         setCategories(categoriesData);
       } catch (err) {
         console.error('Error fetching categories:', err);
-        setError('Failed to load categories');
-        toast.error('Failed to load categories');
+        setError('Échec du chargement des catégories');
+        toast.error('Échec du chargement des catégories');
       } finally {
         setLoading(false);
       }
@@ -127,12 +127,12 @@ export default function AdminCategories() {
       };
 
       const response = await api.post(API_ENDPOINTS.ADMIN.CATEGORIES.CREATE, payload);
-      toast.success('Category created successfully');
+      toast.success('Catégorie créée avec succès');
       setCategories((prev) => [...prev, response.data.data]);
       resetForm();
     } catch (err) {
       console.error('Error creating category:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to create category';
+      const errorMessage = err.response?.data?.message || 'Échec de la création de la catégorie';
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -152,7 +152,7 @@ export default function AdminCategories() {
       }
 
       await api.put(API_ENDPOINTS.ADMIN.CATEGORIES.UPDATE(editingCategory.id), payload);
-      toast.success('Category updated successfully');
+      toast.success('Catégorie mise à jour avec succès');
       setCategories((prev) =>
         prev.map((cat) =>
           cat.id === editingCategory.id ? { ...cat, ...payload } : cat
@@ -161,7 +161,7 @@ export default function AdminCategories() {
       resetForm();
     } catch (err) {
       console.error('Error updating category:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to update category';
+      const errorMessage = err.response?.data?.message || 'Échec de la mise à jour de la catégorie';
       setError(errorMessage);
       toast.error(errorMessage);
     }

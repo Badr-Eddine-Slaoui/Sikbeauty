@@ -136,7 +136,6 @@ export const login = async ( req : Request<{}, {}, Login>, res : Response ) => {
 
 export const refreshAccessToken = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
-    console.error( "hello test", req.cookies )
     if (!refreshToken) {
       throw new AppError("Refresh token not found", 401);
     }

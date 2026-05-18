@@ -48,7 +48,7 @@ export default function AdminProducts() {
         setCategories(categoriesData);
       } catch (err) {
         console.error('Error fetching categories:', err);
-        setError('Failed to load categories');
+        setError('Échec du chargement des catégories');
       }
     };
     fetchCategories();
@@ -70,7 +70,7 @@ export default function AdminProducts() {
         setProducts(response.data?.data || response.data?.products || response.data || []);
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Failed to load products');
+        setError('Échec du chargement des produits');
       } finally {
         setLoading(false);
       }
@@ -240,7 +240,7 @@ export default function AdminProducts() {
         // UPDATE EXISTING PRODUCT
         // Validate required fields for update
         if (!formData.title?.trim() || !formData.description?.trim() || !formData.categoryId) {
-          showValidationError('Please fill in all required fields');
+          showValidationError('Veuillez remplir tous les champs requis');
           setLoading(false);
           return;
         }
@@ -325,12 +325,12 @@ export default function AdminProducts() {
         
         // Show success message
         setError(null);
-        toast.success('Product updated successfully!');
+        toast.success('Produit mis à jour avec succès !');
       } else {
         // CREATE NEW PRODUCT - Send FormData (with images/video)
         // Validate required fields for create
         if (!formData.title?.trim() || !formData.description?.trim() || !formData.categoryId || formData.images.length === 0) {
-          showValidationError('Please fill in all required fields and upload at least one image');
+          showValidationError('Veuillez remplir tous les champs requis et ajouter au moins une image');
           setLoading(false);
           return;
         }
@@ -377,7 +377,7 @@ export default function AdminProducts() {
         
         // Show success message
         setError(null);
-        toast.success('Product created successfully!');
+        toast.success('Produit créé avec succès !');
       }
     } catch (err) {
       console.error('Error saving product:', err);
@@ -390,7 +390,7 @@ export default function AdminProducts() {
                           err.response?.data?.message ||
                           err.response?.data?.error ||
                           err.message ||
-                          'Failed to save product';
+                          'Échec de l\'enregistrement du produit';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -444,7 +444,7 @@ export default function AdminProducts() {
         setShowForm(true);
       } catch (err) {
         console.error('Error fetching product details:', err);
-        toast.error('Failed to load product details');
+        toast.error('Échec du chargement des détails du produit');
       } finally {
         setLoading(false);
       }
@@ -473,10 +473,10 @@ export default function AdminProducts() {
       });
       setProducts(response.data?.data || response.data?.products || response.data || []);
       setProductToDelete(null);
-      toast.success('Product deleted successfully!');
+      toast.success('Produit supprimé avec succès !');
     } catch (err) {
       console.error('Error deleting product:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to delete product';
+      const errorMessage = err.response?.data?.message || 'Échec de la suppression du produit';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

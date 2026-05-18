@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from '@/utils/react-router-dom';
 import { api } from '../../config/api';
 import API_ENDPOINTS from '../../config/api';
+import toast from 'react-hot-toast';
 import { ArrowLeft, Package, MapPin, Phone, Mail, Calendar, CreditCard } from 'lucide-react';
 import ClientNavbar from '../../components/Client/ClientNavbar';
 import Image from 'next/image';
@@ -26,7 +27,9 @@ export default function OrderDetails() {
       setError(null);
     } catch (err) {
       console.error('Error fetching order details:', err);
-      setError('Échec du chargement des détails de la commande');
+      const errorMessage = err.response?.data?.message || 'Échec du chargement des détails de la commande';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

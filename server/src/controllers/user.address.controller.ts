@@ -33,7 +33,6 @@ export const updateAddress = async ( req : Request, res : Response ) => {
     const user = req.user as User;
     // update address 
     const address = await updAddress( user.id, Number( param.id ), body );
-    console.error( address );
     // return success created 
     res.status( StatusCodes.OK ).json({
         status : 'sussess',

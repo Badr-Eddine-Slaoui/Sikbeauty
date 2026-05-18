@@ -30,7 +30,6 @@ export const newCartItem = async ( req : Request, res : Response ) => {
     const user = req.user as User;
 
     // check product exist or not
-    console.error( body.productId )
     const product = await getProductUsingId( body.productId, 'user' );
     // Check status of product
     if ( product.status === false ) 
@@ -44,7 +43,6 @@ export const newCartItem = async ( req : Request, res : Response ) => {
     let item = await findCartItem( body.productId, cart.id );
     // create new item and added to cart
     if ( !item ) {
-        console.error( 'Create new item ');
             // deleted
         // await quantityValidator( {
         //     // stock       :   product.stock,
@@ -62,7 +60,6 @@ export const newCartItem = async ( req : Request, res : Response ) => {
     }
     //  update item cart
     else {
-        console.error( 'Upadate item');
         // deleted
         // await quantityValidator( {
         //     // stock       :   product.stock,
@@ -74,7 +71,6 @@ export const newCartItem = async ( req : Request, res : Response ) => {
         item = await changeCartItemQuantity( item.id, body.quantity, item.quantity );
     }
     const cartInfo = await retrieveCartInfo( user );
-    console.error( "hello")
     // return new cart data
     res.status( StatusCodes.OK ).json( {
         'status'    :   'success',
@@ -138,7 +134,6 @@ export const incrementDecrementQuantity = async ( req : Request, res : Response 
     const item = await findItemById( id );
     // check product status
     await getProductUsingId( item.productId, 'user' );
-    console.error( item );
     if ( body.action === 'decrement' && item.quantity === 1 )
         throw new AppError( 'Quantity cannot be less than 1', 400 );
     // check quantity stock

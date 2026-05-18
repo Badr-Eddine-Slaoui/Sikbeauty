@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { api, API_ENDPOINTS } from '../../config/api';
+import toast from 'react-hot-toast';
 import StatGrid from '../../components/Admin/StatGrid';
 import TopSellingProducts from '../../components/Admin/TopSellingProducts';
 import RecentActivities from '../../components/Admin/RecentActivities';
@@ -88,7 +89,9 @@ export default function AdminOverview() {
       setError(null);
     } catch (err) {
       console.error('Error fetching dashboard stats:', err);
-      setError(err.response?.data?.message || 'Failed to load dashboard statistics');
+      const errorMessage = err.response?.data?.message || 'Échec du chargement des statistiques';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
