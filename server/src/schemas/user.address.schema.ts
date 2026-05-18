@@ -17,11 +17,14 @@ export const userAddressSchema = z.object({
     phoneCountryCode: z.string()
         .regex(/^\+\d{1,4}$/, 'Country code must be + followed by 1 – 4 digits.')
         .trim(),
-    phoneNumber: z.string()
-        .min(4, 'Phone number is too short.')
-        .max(20, 'Phone number is too long.')
-        .regex(/^\d+$/, 'Phone number must contain only digits.')
-        .trim(),
+    phoneNumber: z.preprocess(
+        (val) => typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val,
+        z.string()
+            .min(4, 'Phone number is too short.')
+            .max(20, 'Phone number is too long.')
+            .regex(/^\d+$/, 'Phone number must contain only digits.')
+            .trim()
+    ),
     street: z.string()
         .min(3, 'Street must be at least 3 characters.')
         .max(120, 'Street must be less than 120 characters.')
@@ -49,7 +52,7 @@ export const userAddressSchema = z.object({
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'Invalid phone number for this country.',
-                path: ['phone'],
+                path: ['phoneNumber'],
             });
         }
     });
@@ -72,12 +75,15 @@ export const upadateUserAddressSchema = z.object({
         .trim()
         .optional(),
   
-    phoneNumber: z.string()
-        .min(4, 'Phone number is too short.')
-        .max(20, 'Phone number is too long.')
-        .regex(/^\d+$/, 'Phone number must contain only digits.')
-        .trim()
-        .optional(),
+    phoneNumber: z.preprocess(
+        (val) => typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val,
+        z.string()
+            .min(4, 'Phone number is too short.')
+            .max(20, 'Phone number is too long.')
+            .regex(/^\d+$/, 'Phone number must contain only digits.')
+            .trim()
+            .optional()
+    ),
   
     street: z.string()
         .min(3, 'Street must be at least 3 characters.')
@@ -114,7 +120,7 @@ export const upadateUserAddressSchema = z.object({
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     message: 'Invalid phone number for this country.',
-                    path: ['phone'],
+                    path: ['phoneNumber'],
                 });
             }
         }
@@ -122,7 +128,7 @@ export const upadateUserAddressSchema = z.object({
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'Country code and phone number must be entered together',
-                path: ['phone'],
+                path: ['phoneNumber'],
             });
         }
     });

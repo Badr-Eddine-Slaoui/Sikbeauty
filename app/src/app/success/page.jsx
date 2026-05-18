@@ -1,4 +1,4 @@
-import PaymentSuccess from "@/pages/payment/PaymentSuccess";
+import PaymentSuccess from "@/views/payment/PaymentSuccess";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {

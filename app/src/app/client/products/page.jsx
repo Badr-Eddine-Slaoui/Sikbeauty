@@ -1,4 +1,4 @@
-import ClientDashboard from "@/pages/client/ClientDashboard";
+import ClientDashboard from "@/views/client/ClientDashboard";
 import { internalFetch } from "@/utils/internalFetch";
 
 async function getCategories() {

@@ -1,4 +1,4 @@
-import OrderDetails from "@/pages/orders/OrderDetails";
+import OrderDetails from "@/views/orders/OrderDetails";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {

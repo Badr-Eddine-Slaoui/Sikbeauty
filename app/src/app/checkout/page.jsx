@@ -1,4 +1,4 @@
-import CheckoutPage from "@/pages/checkout/CheckoutPage";
+import CheckoutPage from "@/views/checkout/CheckoutPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {

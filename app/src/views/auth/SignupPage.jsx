@@ -80,6 +80,8 @@ function Register() {
     }
   };
 
+  const isPhoneValid = formData.phoneNumber ? validatePhoneForCode(formData.phoneCountryCode, formData.phoneNumber) : null;
+
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden">
       {/* Image Section */}
@@ -171,11 +173,26 @@ function Register() {
                 placeholder="TÉLÉPHONE" 
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
-                className="placeholder:opacity-50 w-full sm:w-[60%] p-3 border border-black focus:border-brandRed focus:outline-none transition-colors bg-white"
+                className={`placeholder:opacity-50 w-full sm:w-[60%] p-3 border focus:outline-none transition-colors bg-white ${
+                  formData.phoneNumber
+                    ? isPhoneValid
+                      ? "border-emerald-500 focus:border-emerald-600 text-emerald-950"
+                      : "border-rose-500 focus:border-rose-600 text-rose-950"
+                    : "border-black focus:border-brandRed"
+                }`}
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
                 required
               />
             </div>
+            {formData.phoneNumber && (
+              <div className="mt-1 text-xs font-montserrat">
+                {isPhoneValid ? (
+                  <span className="text-emerald-600 flex items-center gap-1">✓ Numéro de téléphone valide</span>
+                ) : (
+                  <span className="text-rose-600 flex items-center gap-1">✗ Numéro de téléphone invalide pour ce pays</span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 mb-3">

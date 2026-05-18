@@ -1,4 +1,4 @@
-import Index from "@/pages/index/IndexPage";
+import Index from "@/views/index/IndexPage";
 
 export const metadata = {
   title: "Sikbeauty | The Best Beauty Products",

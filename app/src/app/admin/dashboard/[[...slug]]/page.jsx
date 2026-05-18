@@ -1,4 +1,4 @@
-import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminDashboard from "@/views/admin/AdminDashboard";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {

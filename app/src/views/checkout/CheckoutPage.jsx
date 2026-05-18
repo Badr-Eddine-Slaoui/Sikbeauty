@@ -53,17 +53,21 @@ export default function CheckoutPage() {
   const hasUnavailableItems = cartItems.some((item) => item?.product?.status !== true);
   const total = getTotal();
 
+  const isPhoneValid = useMemo(() => {
+    return address.phoneNumber ? validatePhoneForCode(address.phoneCountryCode, address.phoneNumber) : null;
+  }, [address.phoneCountryCode, address.phoneNumber]);
+
   const canSubmit = useMemo(() => {
     if (cartItems.length === 0 || activeItems.length === 0) return false;
     return (
       address.fullName.trim().length >= 3 &&
       address.email.trim().length >= 3 &&
-      address.phoneNumber.trim().length >= 4 &&
+      isPhoneValid &&
       address.street.trim().length >= 3 &&
       address.city.trim().length >= 2 &&
       address.country.trim().length >= 2
     );
-  }, [address, cartItems.length, activeItems.length]);
+  }, [address, cartItems.length, activeItems.length, isPhoneValid]);
 
   const onChange = (key) => (e) => {
     setAddress((prev) => ({ ...prev, [key]: e.target.value }));
@@ -190,15 +194,38 @@ export default function CheckoutPage() {
                     <label className="text-sm font-bold block mb-1">Email</label>
                     <input value={address.email} onChange={onChange('email')} type="email" className="w-full border rounded-lg p-3" required />
                   </div>
-                  <div className="flex gap-2 sm:col-span-2">
-                    <select value={address.phoneCountryCode} onChange={onChange('phoneCountryCode')} className="w-40 border rounded-lg p-3 bg-white cursor-pointer text-sm">
-                      {COUNTRY_PHONE_CODES.map((c) => (
-                        <option key={`${c.country}-${c.code}`} value={c.code}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <input value={address.phoneNumber} onChange={onChange('phoneNumber')} className="flex-1 border rounded-lg p-3 text-sm" placeholder="Téléphone" required />
+                  <div className="sm:col-span-2">
+                    <div className="flex gap-2">
+                      <select value={address.phoneCountryCode} onChange={onChange('phoneCountryCode')} className="w-40 border rounded-lg p-3 bg-white cursor-pointer text-sm">
+                        {COUNTRY_PHONE_CODES.map((c) => (
+                          <option key={`${c.country}-${c.code}`} value={c.code}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      <input 
+                        value={address.phoneNumber} 
+                        onChange={onChange('phoneNumber')} 
+                        className={`flex-1 border rounded-lg p-3 text-sm focus:outline-none transition-colors ${
+                          address.phoneNumber
+                            ? isPhoneValid
+                              ? "border-emerald-500 focus:border-emerald-600 text-emerald-950"
+                              : "border-rose-500 focus:border-rose-600 text-rose-950"
+                            : "border-gray-200/80 focus:border-brandRed"
+                        }`} 
+                        placeholder="Téléphone" 
+                        required 
+                      />
+                    </div>
+                    {address.phoneNumber && (
+                      <div className="mt-1 text-xs font-montserrat">
+                        {isPhoneValid ? (
+                          <span className="text-emerald-600 flex items-center gap-1">✓ Numéro de téléphone valide</span>
+                        ) : (
+                          <span className="text-rose-600 flex items-center gap-1">✗ Numéro de téléphone invalide pour ce pays</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="sm:col-span-2">
                     <label className="text-sm font-bold block mb-1">Rue</label>

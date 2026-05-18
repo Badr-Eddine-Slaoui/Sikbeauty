@@ -58,11 +58,14 @@ export const registerSchemas = z.object({
     phoneCountryCode: z.string()
         .regex(/^\+\d{1,4}$/, 'Country code must be + followed by 1 – 4 digits.')
         .trim(),
-    phoneNumber: z.string()
-        .min(4, 'Phone number is too short.')
-        .max(20, 'Phone number is too long.')
-        .regex(/^\d+$/, 'Phone number must contain only digits.')
-        .trim(),
+    phoneNumber: z.preprocess(
+        (val) => typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val,
+        z.string()
+            .min(4, 'Phone number is too short.')
+            .max(20, 'Phone number is too long.')
+            .regex(/^\d+$/, 'Phone number must contain only digits.')
+            .trim()
+    ),
 
     country :   z.string()
         .min(2, 'Country name must be at least 2 characters long')
@@ -90,7 +93,7 @@ export const registerSchemas = z.object({
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'Invalid phone number for this country.',
-                path: ['phone'],
+                path: ['phoneNumber'],
             });
         }
         if (val.password !== val.confirmPassword) {

@@ -1,4 +1,5 @@
-import Login from "@/pages/auth/LoginPage";
+import { Suspense } from "react";
+import Login from "@/views/auth/LoginPage";
 import GuestRoute from "@/components/GuestRoute";
 
 export const metadata = {
@@ -9,6 +10,11 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <GuestRoute><Login /></GuestRoute>
+    <GuestRoute>
+      <Suspense fallback={<div>Chargement...</div>}>
+        <Login />
+      </Suspense>
+    </GuestRoute>
   );
 }
+

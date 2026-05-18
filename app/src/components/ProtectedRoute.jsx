@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Navigate, useLocation } from '@/utils/react-router-dom';
-import NotFound from '../pages/NotFound';
+import NotFound from '../views/NotFound';
 import { useAuth } from '../contexts/AuthContext';
 import PageLoader from './ui/PageLoader';
 

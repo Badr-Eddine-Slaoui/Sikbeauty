@@ -1,4 +1,4 @@
-import Signup from "@/pages/auth/SignupPage";
+import Signup from "@/views/auth/SignupPage";
 import GuestRoute from "@/components/GuestRoute";
 
 export const metadata = {

@@ -1,4 +1,4 @@
-import BlogListPage from "@/pages/blog/BlogListPage";
+import BlogListPage from "@/views/blog/BlogListPage";
 import { internalFetch } from "@/utils/internalFetch";
 
 async function getBlogs(page = 1) {

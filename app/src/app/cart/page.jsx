@@ -1,4 +1,4 @@
-import CartPage from "@/pages/cart/CartPage";
+import CartPage from "@/views/cart/CartPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {

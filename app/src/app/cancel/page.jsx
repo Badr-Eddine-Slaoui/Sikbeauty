@@ -1,4 +1,4 @@
-import PaymentFailed from "@/pages/payment/PaymentFailed";
+import PaymentFailed from "@/views/payment/PaymentFailed";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {

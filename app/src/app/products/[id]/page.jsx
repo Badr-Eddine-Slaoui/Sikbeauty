@@ -1,4 +1,4 @@
-import ProductDetails from "@/pages/products/ProductDetails";
+import ProductDetails from "@/views/products/ProductDetails";
 import StructuredData from "@/components/SEO/StructuredData";
 import { internalFetch } from "@/utils/internalFetch";
 
