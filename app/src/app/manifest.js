@@ -9,12 +9,12 @@ export default function manifest() {
     theme_color: '#B5483A',
     icons: [
       {
-        src: '/favicon.ico',
+        src: '/app/public/Pictures/SI-K-Beauty-logo.png',
         sizes: 'any',
         type: 'image/x-icon',
       },
       {
-        src: '/apple-touch-icon.png',
+        src: '/app/public/Pictures/SI-K-Beauty-logo.png',
         sizes: '180x180',
         type: 'image/png',
       },
