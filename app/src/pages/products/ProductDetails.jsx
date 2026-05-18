@@ -112,11 +112,12 @@ export default function ProductDetails({ initialProduct = null }) {
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
-  const currentPrice = product?.finalPrice ?? product?.price ?? 0;
-  const priceValue = typeof currentPrice === "number" ? currentPrice.toFixed(2) : currentPrice;
-  const oldPrice = product?.price > product?.finalPrice ? product.price : null;
-  const showDiscount = !!product?.discountType && product?.discount > 0;
-  const discountValue = product?.discount || 0;
+  const priceNum = toNumber(product?.finalPrice ?? product?.price ?? 0);
+  const originalPriceNum = toNumber(product?.price ?? 0);
+  const priceValue = priceNum.toFixed(2);
+  const oldPrice = originalPriceNum > priceNum ? originalPriceNum : null;
+  const showDiscount = !!product?.discountType && toNumber(product?.discount) > 0;
+  const discountValue = toNumber(product?.discount || 0);
   
   const galleryImages = product
     ? [
@@ -155,7 +156,7 @@ export default function ProductDetails({ initialProduct = null }) {
   }
 
   const isAvailable = product?.status === true;
-  const displayTotalPrice = (currentPrice * quantity).toFixed(2);
+  const displayTotalPrice = (priceNum * quantity).toFixed(2);
 
   return (
     <div>
