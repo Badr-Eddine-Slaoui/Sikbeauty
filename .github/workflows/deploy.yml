@@ -39,14 +39,25 @@ jobs:
             echo "📥 Fetching latest changes..."
             git pull origin main
             
-            # Build and recreate containers seamlessly (zero-downtime & retains all volume data)
+            # Detect Docker Compose version and apply workarounds for legacy bugs
+            if docker compose version >/dev/null 2>&1; then
+              echo "✅ Modern 'docker compose' (V2) detected."
+              COMPOSE_CMD="docker compose"
+            else
+              echo "⚠️ Legacy 'docker-compose' (V1) detected. Applying cleanup to prevent ContainerConfig bugs..."
+              COMPOSE_CMD="docker-compose"
+              # Stop and remove existing containers to bypass the legacy KeyError: 'ContainerConfig' bug
+              $COMPOSE_CMD -f docker-compose.prod.yml down
+            fi
+
+            # Build and recreate containers seamlessly (retains all volume data)
             echo "🐳 Rebuilding and upgrading Docker containers..."
-            docker-compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            $COMPOSE_CMD -f docker-compose.prod.yml up -d --build --remove-orphans
             
             # Run database migrations inside the server container
             # The '-T' flag is critical in CI/CD to disable pseudo-TTY allocation
             echo "🗄️ Running database migrations..."
-            docker-compose -f docker-compose.prod.yml exec -T server npx prisma migrate deploy
+            $COMPOSE_CMD -f docker-compose.prod.yml exec -T server npx prisma migrate deploy
             
             # Clean up old unused Docker images to save VPS disk space
             echo "🧹 Cleaning up system memory and old Docker layers..."
