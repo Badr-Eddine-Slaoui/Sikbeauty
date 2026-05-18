@@ -31,10 +31,18 @@ export const errorHandler = (
         const statusCode = err.statusCode ?? 500;
         const status = err.status ?? 'error';
       
+        // If it's an operational error, send the message; otherwise, hide details
+        const message =
+          err.isOperational && err.message
+            ? err.message
+            : 'Une erreur inattendue est survenue. Veuillez réessayer.';
+      
         res.status(statusCode).json({
           status,
-          message: err.message || 'Une erreur inattendue est survenue. Veuillez réessayer.',
-          stack: err.stack,
-          details: err,
+          message,
+          ...(process.env.NODE_ENV === 'development' && {
+            stack: err.stack,
+            details: err,
+          }),
         });
 };

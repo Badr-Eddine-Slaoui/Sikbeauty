@@ -70,17 +70,24 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:3001',
+    'https://sikbeauty.com',
+    'https://www.sikbeauty.com',
     process.env.FRONTEND_URL,
-].filter(Boolean);
+].filter(Boolean) as string[];
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.includes(origin)) {
+        const isAllowed = 
+            allowedOrigins.includes(origin) || 
+            /^https?:\/\/(?:[a-zA-Z0-9-]+\.)*sikbeauty\.com$/.test(origin);
+
+        if (isAllowed) {
             callback(null, true);
         } else {
+            console.error(`Blocked by CORS: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
