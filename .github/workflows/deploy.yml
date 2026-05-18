@@ -26,6 +26,14 @@ jobs:
             
             # Navigate to project directory
             cd /var/www/sikbeauty-next
+
+            # Configure Git to use SSH for this session
+            echo "🔑 Configuring SSH..."
+            eval "$(ssh-agent -s)"
+
+            # Add SSH key to SSH agent
+            echo "🔑 Adding SSH key..."
+            ssh-add /root/.ssh/sikbeauty
             
             # Pull latest changes from git
             echo "📥 Fetching latest changes..."
